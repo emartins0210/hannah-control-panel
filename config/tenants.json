@@ -1,0 +1,17 @@
+{
+  "tenants": [
+    {
+      "id": "lopes-cleaning-main",
+      "companyName": "Lopes Cleaning Services",
+      "webhookKey": "lopes_webhook_key_2024_main",
+      "active": true,
+      "aiName": "Hannah",
+      "serviceAreas": "Florida",
+      "vapiAssistantId": "hannah-lopes-cleaning",
+      "vapiPhoneNumberId": null,
+      "vapiInboundAssistantId": "hannah-lopes-inbound",
+      "googleCalendarId": "your_calendar_id@group.calendar.google.com",
+      "createdAt": "2026-03-22T01:38:48.443Z"
+    }
+  ]
+}

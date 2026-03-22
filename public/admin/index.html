@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>CleanAI — Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#080b12;--sf:#0e1420;--sf2:#141c2e;--bd:rgba(255,255,255,.07);--bd2:rgba(255,255,255,.13);--tx:#f0f4ff;--mu:#6b7a99;--ac:#4f8ef7;--ac2:#7c5cfc;--gn:#22c984;--rd:#ff4d6d;--am:#ffb547;--mo:'DM Mono',monospace;--sa:'DM Sans',sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sa);background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
+.shell{display:flex;min-height:100vh}
+.sidebar{width:240px;min-height:100vh;background:var(--sf);border-right:1px solid var(--bd);display:flex;flex-direction:column;position:fixed;top:0;left:0}
+.sb-top{padding:24px 20px 18px;border-bottom:1px solid var(--bd)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-ico{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--ac),var(--ac2));display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.brand-name{font-size:15px;font-weight:700;letter-spacing:-.3px}
+.brand-sub{font-size:10px;color:var(--mu);letter-spacing:.5px;text-transform:uppercase;margin-top:1px}
+.nav{padding:10px 12px;flex:1}
+.ns{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--mu);padding:12px 8px 5px}
+.ni{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:13.5px;font-weight:500;color:var(--mu);transition:all .15s;border:none;background:none;width:100%;text-align:left;margin-bottom:1px}
+.ni:hover{background:var(--sf2);color:var(--tx)}
+.ni.active{background:rgba(79,142,247,.12);color:var(--ac)}
+.sb-foot{padding:14px 20px;border-top:1px solid var(--bd);font-size:12px;color:var(--mu)}
+.dot-live{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gn);margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.main{margin-left:240px;flex:1;padding:30px 34px}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px}
+.pt{font-size:24px;font-weight:700;letter-spacing:-.5px}
+.ps{font-size:13px;color:var(--mu);margin-top:3px}
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.sc{background:var(--sf);border:1px solid var(--bd);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;transition:border-color .2s}
+.sc:hover{border-color:var(--bd2)}
+.sg-bg{position:absolute;top:-24px;right:-24px;width:80px;height:80px;border-radius:50%;opacity:.1;filter:blur(22px)}
+.sl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--mu);margin-bottom:9px}
+.sv{font-size:30px;font-weight:700;letter-spacing:-1px;line-height:1}
+.sd{font-size:12px;color:var(--mu);margin-top:5px}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:14px;overflow:hidden;margin-bottom:18px}
+.ch{padding:16px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.ct{font-size:13px;font-weight:600}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 20px;font-size:10px;text-transform:uppercase;letter-spacing:.6px;color:var(--mu);text-align:left;background:var(--sf2);font-weight:600}
+td{padding:13px 20px;font-size:13px;border-bottom:1px solid var(--bd);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:rgba(255,255,255,.02)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.badge::before{content:'';width:5px;height:5px;border-radius:50%}
+.ba{background:rgba(34,201,132,.12);color:var(--gn)}.ba::before{background:var(--gn)}
+.bb{background:rgba(79,142,247,.12);color:var(--ac)}.bb::before{background:var(--ac)}
+.bc{background:rgba(124,92,252,.12);color:var(--ac2)}.bc::before{background:var(--ac2)}
+.bn{background:rgba(107,122,153,.12);color:var(--mu)}.bn::before{background:var(--mu)}
+.br{background:rgba(255,77,109,.12);color:var(--rd)}.br::before{background:var(--rd)}
+.btn{padding:7px 15px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px;font-family:var(--sa)}
+.bp{background:var(--ac);color:#fff}.bp:hover{background:#3d7ef5;transform:translateY(-1px)}
+.bg{background:var(--sf2);color:var(--tx);border:1px solid var(--bd)}.bg:hover{border-color:var(--bd2)}
+.bd2c{background:rgba(255,77,109,.1);color:var(--rd);border:1px solid rgba(255,77,109,.2)}.bd2c:hover{background:rgba(255,77,109,.18)}
+.bgn{background:rgba(34,201,132,.1);color:var(--gn);border:1px solid rgba(34,201,132,.2)}.bgn:hover{background:rgba(34,201,132,.18)}
+.bam{background:rgba(255,181,71,.1);color:var(--am);border:1px solid rgba(255,181,71,.2)}
+.bxs{padding:4px 10px;font-size:11px}
+.section{display:none;animation:fi .2s ease}
+.section.active{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.cc{background:var(--sf);border:1px solid var(--bd);border-radius:13px;padding:18px 20px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;transition:border-color .15s}
+.cc:hover{border-color:var(--bd2)}
+.ca{width:38px;height:38px;border-radius:9px;background:linear-gradient(135deg,var(--ac),var(--ac2));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ci{flex:1;min-width:0}
+.cn{font-size:14px;font-weight:600}
+.cm{font-size:11px;color:var(--mu);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ck{font-size:10px;color:var(--mu);margin-top:3px;font-family:var(--mo)}
+.cac{display:flex;gap:6px;flex-wrap:wrap}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(5px)}
+.overlay.open{display:flex}
+.modal{background:var(--sf);border:1px solid var(--bd2);border-radius:18px;padding:26px;width:520px;max-height:90vh;overflow-y:auto;animation:su .2s ease}
+@keyframes su{from{transform:translateY(14px);opacity:0}to{transform:translateY(0);opacity:1}}
+.mt{font-size:17px;font-weight:700;margin-bottom:20px}
+.mf{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;padding-top:18px;border-top:1px solid var(--bd)}
+.fg{margin-bottom:14px}
+.fl{display:block;font-size:11px;font-weight:600;color:var(--mu);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.fi{width:100%;padding:9px 12px;background:var(--sf2);border:1px solid var(--bd);border-radius:8px;color:var(--tx);font-size:13px;outline:none;transition:border .15s;font-family:var(--sa)}
+.fi:focus{border-color:var(--ac)}
+.code{background:var(--sf2);border:1px solid var(--bd);border-radius:8px;padding:11px 13px;font-family:var(--mo);font-size:11px;color:var(--gn);word-break:break-all;position:relative}
+.cpb{position:absolute;top:7px;right:7px;padding:2px 8px;background:var(--sf);border:1px solid var(--bd);border-radius:5px;color:var(--mu);font-size:10px;cursor:pointer;font-family:var(--sa);font-weight:600}
+.cpb:hover{color:var(--tx)}
+.ale{padding:10px 13px;border-radius:8px;font-size:12px;margin-bottom:12px}
+.ale-e{background:rgba(255,77,109,.1);border:1px solid rgba(255,77,109,.2);color:#ff8099}
+.ale-o{background:rgba(34,201,132,.1);border:1px solid rgba(34,201,132,.2);color:var(--gn)}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--bd);margin-bottom:18px}
+.tab{padding:9px 15px;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;color:var(--mu);transition:all .15s;font-weight:500}
+.tab.active{color:var(--ac);border-bottom-color:var(--ac)}
+.empty{text-align:center;padding:48px 20px;color:var(--mu);font-size:13px}
+.ei{font-size:32px;margin-bottom:10px;opacity:.35}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid var(--bd2);border-top-color:var(--ac);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.mg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.mm{background:var(--sf2);border-radius:10px;padding:13px 15px;border:1px solid var(--bd)}
+.mml{font-size:11px;color:var(--mu);margin-bottom:3px}
+.mmv{font-size:18px;font-weight:700;letter-spacing:-.4px}
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
+.rb{background:var(--sf2);border-radius:12px;padding:16px 18px;border:1px solid var(--bd)}
+.rbt{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--mu);margin-bottom:12px}
+.rr{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bd);font-size:12px}
+.rr:last-child{border-bottom:none}
+.rrl{color:var(--mu)}
+.rrv{font-weight:600;font-family:var(--mo)}
+.rrv.g{color:var(--gn)}.rrv.r{color:var(--rd)}.rrv.a{color:var(--am)}
+.fp{display:flex;align-items:center;justify-content:space-between;padding:6px 11px;border-radius:7px;font-size:12px;font-weight:600;margin-bottom:5px;width:100%}
+.fw{background:rgba(34,201,132,.09);color:var(--gn);border:1px solid rgba(34,201,132,.18)}
+.fb{background:rgba(79,142,247,.09);color:var(--ac);border:1px solid rgba(79,142,247,.18)}
+.fm{background:rgba(124,92,252,.09);color:var(--ac2);border:1px solid rgba(124,92,252,.18)}
+@media(max-width:1024px){.sg{grid-template-columns:1fr 1fr}.rg{grid-template-columns:1fr}}
+@media(max-width:768px){
+  .sidebar{display:none}
+  .main{margin-left:0!important;padding:12px 12px 80px}
+  .sg{grid-template-columns:1fr 1fr;gap:10px}
+  .sc{padding:14px 15px}
+  .sv{font-size:22px}
+  .ph{flex-direction:column;gap:10px;margin-bottom:16px}
+  .pt{font-size:19px}
+  .cc{flex-direction:column;align-items:flex-start}
+  .cac{width:100%;flex-wrap:wrap}
+  .rg{grid-template-columns:1fr}
+  .modal{width:94vw!important;padding:18px;margin:10px}
+  table{font-size:11px}
+  th,td{padding:8px 10px}
+  .mg{grid-template-columns:1fr 1fr 1fr}
+  .card-title{font-size:12px}
+  .mob-nav{display:flex!important}
+}
+@media(min-width:769px){.mob-nav{display:none!important}}
+.mob-nav{position:fixed;bottom:0;left:0;right:0;background:var(--sf);border-top:1px solid var(--bd);z-index:100;padding:0;display:none}
+.mni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px 14px;font-size:9px;font-weight:600;color:var(--mu);cursor:pointer;border:none;background:none;gap:3px;transition:color .15s;font-family:var(--sa);letter-spacing:.3px;text-transform:uppercase}
+.mni.active{color:var(--ac)}
+.mni-ico{font-size:19px;line-height:1}
+@media print{.sidebar,.mob-nav,.ph button,select,.btn{display:none!important}.main{margin-left:0;padding:16px}}
+</style>
+</head>
+<body>
+<div class="shell">
+<nav class="sidebar">
+  <div class="sb-top">
+    <div class="brand">
+      <div class="brand-ico">🧹</div>
+      <div><div class="brand-name">CleanAI</div><div class="brand-sub">Command Center</div></div>
+    </div>
+  </div>
+  <div class="nav">
+    <div class="ns">Overview</div>
+    <button class="ni active" onclick="go('dashboard')"><span>📊</span><span>Dashboard</span></button>
+    <div class="ns">Manage</div>
+    <button class="ni" onclick="go('companies')"><span>🏢</span><span>Companies</span></button>
+    <button class="ni" onclick="go('leads')"><span>📋</span><span>All Leads</span></button>
+    <button class="ni" onclick="go('reports')"><span>📈</span><span>Reports</span></button>
+    <div class="ns">System</div>
+    <button class="ni" onclick="go('settings')"><span>⚙️</span><span>Settings</span></button>
+  </div>
+  <div class="sb-foot"><span class="dot-live"></span>System online</div>
+</nav>
+<main class="main">
+
+<!-- DASHBOARD -->
+<div id="sec-dashboard" class="section active">
+  <div class="ph">
+    <div><div class="pt">Dashboard</div><div class="ps" id="dash-date"></div></div>
+    <button class="btn bg bxs" onclick="loadDashboard()"><span id="ds" class="spin" style="display:none"></span>Refresh</button>
+  </div>
+  <div class="sg">
+    <div class="sc"><div class="sg-bg" style="background:var(--ac)"></div><div class="sl">Active Companies</div><div class="sv" id="s1" style="color:var(--ac)">—</div><div class="sd">SaaS clients</div></div>
+    <div class="sc"><div class="sg-bg" style="background:var(--ac2)"></div><div class="sl">Total Leads</div><div class="sv" id="s2" style="color:var(--ac2)">—</div><div class="sd">All time</div></div>
+    <div class="sc"><div class="sg-bg" style="background:var(--gn)"></div><div class="sl">Bookings</div><div class="sv" id="s3" style="color:var(--gn)">—</div><div class="sd" id="s3b">— conversion</div></div>
+    <div class="sc"><div class="sg-bg" style="background:var(--am)"></div><div class="sl">Weekly Revenue</div><div class="sv" id="s4" style="color:var(--am)">—</div><div class="sd">Your SaaS income</div></div>
+  </div>
+  <div class="card">
+    <div class="ch"><div class="ct">Companies Performance</div></div>
+    <table><thead><tr><th>Company</th><th>Status</th><th>Leads</th><th>Booked</th><th>Rate</th><th>Actions</th></tr></thead>
+    <tbody id="dt"><tr><td colspan="6" style="text-align:center;padding:36px;color:var(--mu)"><span class="spin"></span></td></tr></tbody></table>
+  </div>
+</div>
+
+<!-- COMPANIES -->
+<div id="sec-companies" class="section">
+  <div class="ph">
+    <div><div class="pt">Companies</div><div class="ps">Manage your SaaS clients</div></div>
+    <button class="btn bp" onclick="openNew()">+ Add Company</button>
+  </div>
+  <div id="cl"><div class="empty"><span class="spin"></span></div></div>
+</div>
+
+<!-- LEADS -->
+<div id="sec-leads" class="section">
+  <div class="ph">
+    <div><div class="pt">All Leads</div><div class="ps">Every lead across all companies</div></div>
+    <select id="lf" class="fi" style="width:190px" onchange="filterLeads()"><option value="">All Companies</option></select>
+  </div>
+  <div class="card"><table><thead><tr><th>Name</th><th>Company</th><th>Service</th><th>Phone</th><th>Status</th><th>Outcome</th><th>Date</th><th></th></tr></thead>
+  <tbody id="lt"><tr><td colspan="8" style="text-align:center;padding:36px;color:var(--mu)"><span class="spin"></span></td></tr></tbody></table></div>
+</div>
+
+<!-- REPORTS -->
+<div id="sec-reports" class="section">
+  <div class="ph">
+    <div><div class="pt">Monthly Report</div><div class="ps">Performance breakdown by company and period</div></div>
+    <div style="display:flex;gap:10px">
+      <select id="rc" class="fi" style="width:190px" onchange="loadReport()"><option value="">Select company...</option></select>
+      <select id="rm" class="fi" style="width:150px" onchange="loadReport()"></select>
+    </div>
+  </div>
+  <div id="rb"><div class="empty"><div class="ei">📈</div>Select a company to generate the report</div></div>
+</div>
+
+<!-- SETTINGS -->
+<div id="sec-settings" class="section">
+  <div class="ph"><div class="pt">Settings</div></div>
+  <div style="max-width:460px">
+    <div class="card"><div class="ch"><div class="ct">Authentication</div></div>
+    <div style="padding:20px">
+      <div id="sa"></div>
+      <div class="fg"><label class="fl">Admin Secret Key</label><input type="password" id="ss" class="fi" placeholder="From Railway → Variables → ADMIN_SECRET"></div>
+      <div class="fg"><label class="fl">Server URL</label><input type="text" id="su" class="fi" placeholder="https://cleanai-saas-production.up.railway.app"></div>
+      <button class="btn bp" onclick="saveSettings()" style="width:100%">Save Settings</button>
+    </div></div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- Modal: Company -->
+<div class="overlay" id="mc">
+  <div class="modal">
+    <div class="mt" id="mct">Add Company</div>
+    <div id="mca"></div>
+    <div class="fg"><label class="fl">Company Name *</label><input class="fi" id="mn" placeholder="Lopes Cleaning Services"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="fg"><label class="fl">Owner Name</label><input class="fi" id="mo" placeholder="Fabíola Medeiros"></div>
+      <div class="fg"><label class="fl">AI Name</label><input class="fi" id="mai" placeholder="Hannah" value="Hannah"></div>
+    </div>
+    <div class="fg"><label class="fl">Owner Email *</label><input class="fi" id="me" placeholder="hello@company.com"></div>
+    <div class="fg"><label class="fl">Service Areas</label><input class="fi" id="mar" placeholder="Melbourne FL, Palm Bay FL"></div>
+    <div class="fg"><label class="fl">Vapi Phone Number ID</label><input class="fi" id="mv" placeholder="From dashboard.vapi.ai → Phone Numbers"><div style="font-size:10px;color:var(--mu);margin-top:4px">dashboard.vapi.ai → Phone Numbers → copy the ID</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="fg"><label class="fl">Company Phone</label><input class="fi" id="mcp" placeholder="(321) 392-7880"></div>
+      <div class="fg"><label class="fl">Google Review Link</label><input class="fi" id="mrl" placeholder="https://g.page/r/..."></div>
+    </div>
+    <div class="mf">
+      <button class="btn bg" onclick="closeM('mc')">Cancel</button>
+      <button class="btn bp" id="msb" onclick="saveCompany()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Detail -->
+<div class="overlay" id="md">
+  <div class="modal" style="width:610px">
+    <div class="mt" id="mdt"></div>
+    <div id="mdb"></div>
+    <div class="mf"><button class="btn bg" onclick="closeM('md')">Close</button></div>
+  </div>
+</div>
+
+<!-- Modal: Lead -->
+<div class="overlay" id="ml">
+  <div class="modal">
+    <div class="mt" id="mlt"></div>
+    <div id="mlb"></div>
+    <div class="mf"><button class="btn bg" onclick="closeM('ml')">Close</button></div>
+  </div>
+</div>
+
+<script>
+let SERVER=localStorage.getItem('ca_s')||location.origin,SECRET=localStorage.getItem('ca_k')||'';
+let T=[],L=[],editId=null;
+
+async function api(m,p,b){
+  if(!SECRET){go('settings');throw new Error('Set your Admin Secret first')}
+  const r=await fetch(SERVER+'/api/admin'+p,{method:m,headers:{'Content-Type':'application/json','x-admin-secret':SECRET},body:b?JSON.stringify(b):undefined});
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error||'Request failed')}
+  return r.json()
+}
+
+function go(n){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.mni').forEach(b=>b.classList.remove('active'));
+  document.getElementById('sec-'+n).classList.add('active');
+  document.querySelectorAll(`[onclick="go('${n}')"]`).forEach(el=>el.classList.add('active'));
+  if(n==='dashboard')loadDash();
+  if(n==='companies')loadCo();
+  if(n==='leads')loadLeads();
+  if(n==='reports')initRep();
+}
+
+async function loadDash(){
+  document.getElementById('ds').style.display='inline-block';
+  document.getElementById('dash-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  try{
+    const d=await api('GET','/tenants');T=d.tenants||[];
+    let tL=0,tB=0;const rows=[];
+    for(const t of T){const det=await api('GET','/tenants/'+t.id);tL+=det.stats.totalLeads;tB+=det.stats.booked;rows.push({t,s:det.stats})}
+    const act=T.filter(t=>t.active).length,rt=tL>0?((tB/tL)*100).toFixed(1):0;
+    document.getElementById('s1').textContent=act;
+    document.getElementById('s2').textContent=tL;
+    document.getElementById('s3').textContent=tB;
+    document.getElementById('s3b').textContent=rt+'% conversion';
+    document.getElementById('s4').textContent='$'+(act*175).toLocaleString()+'/wk';
+    document.getElementById('dt').innerHTML=rows.length===0
+      ?`<tr><td colspan="6" class="empty">No companies yet.</td></tr>`
+      :rows.map(({t,s})=>`<tr>
+        <td><div style="font-weight:600">${t.companyName}</div><div style="font-size:11px;color:var(--mu);margin-top:2px">${t.serviceAreas}</div></td>
+        <td><span class="badge ${t.active?'ba':'br'}">${t.active?'Active':'Inactive'}</span></td>
+        <td style="font-family:var(--mo)">${s.totalLeads}</td>
+        <td style="font-family:var(--mo);color:var(--gn)">${s.booked}</td>
+        <td style="font-family:var(--mo)">${s.conversionRate}</td>
+        <td style="display:flex;gap:5px">
+          <button class="btn bg bxs" onclick="openDet('${t.id}')">View</button>
+          <button class="btn bgn bxs" onclick="testCall('${t.id}')">Test</button>
+        </td></tr>`).join('')
+  }catch(e){document.getElementById('dt').innerHTML=`<tr><td colspan="6" style="color:var(--rd);padding:28px;text-align:center">${e.message}</td></tr>`}
+  document.getElementById('ds').style.display='none'
+}
+
+async function loadCo(){
+  document.getElementById('cl').innerHTML='<div class="empty"><span class="spin"></span></div>';
+  try{
+    const d=await api('GET','/tenants');T=d.tenants||[];
+    if(!T.length){document.getElementById('cl').innerHTML='<div class="empty"><div class="ei">🏢</div>No companies yet.</div>';return}
+    document.getElementById('cl').innerHTML=T.map(t=>`
+      <div class="cc">
+        <div class="ca">🧹</div>
+        <div class="ci">
+          <div class="cn">${t.companyName}</div>
+          <div class="cm">${t.ownerEmail} · AI: ${t.aiName} · ${t.serviceAreas}</div>
+          <div class="ck">Key: ${t.webhookKey}</div>
+        </div>
+        <div class="cac">
+          <span class="badge ${t.active?'ba':'br'}">${t.active?'Active':'Inactive'}</span>
+          <button class="btn bg bxs" onclick="openDet('${t.id}')">Details</button>
+          <button class="btn bg bxs" onclick="openEdit('${t.id}')">Edit</button>
+          <button class="btn bgn bxs" onclick="doSetup('${t.id}')">${t.vapiAssistantId?'Update Vapi':'Setup Vapi'}</button>
+          <button class="btn bgn bxs" onclick="doInbound('${t.id}')">${t.vapiInboundAssistantId?'Update Inbound':'Setup Inbound'}</button>
+          <button class="btn bg bxs" onclick="doPass('${t.id}','${t.ownerEmail}')">Password</button>
+          <button class="btn bam bxs" onclick="doColdCall('${t.id}')">Cold Call</button>
+          <button class="btn bd2c bxs" onclick="doDel('${t.id}','${t.companyName}')">Delete</button>
+        </div>
+      </div>`).join('')
+  }catch(e){document.getElementById('cl').innerHTML=`<div class="empty" style="color:var(--rd)">${e.message}</div>`}
+}
+
+async function openDet(id){
+  const det=await api('GET','/tenants/'+id);const t=det.tenant,s=det.stats;
+  document.getElementById('mdt').textContent=t.companyName;
+  document.getElementById('mdb').innerHTML=`
+    <div class="tabs">
+      <div class="tab active" onclick="stab(this,'ti')">Info</div>
+      <div class="tab" onclick="stab(this,'tw')">Webhook</div>
+      <div class="tab" onclick="stab(this,'ts')">Stats</div>
+    </div>
+    <div id="ti">
+      <div class="mg">
+        <div class="mm"><div class="mml">Company</div><div class="mmv" style="font-size:13px">${t.companyName}</div></div>
+        <div class="mm"><div class="mml">AI Name</div><div class="mmv" style="font-size:13px">${t.aiName}</div></div>
+        <div class="mm"><div class="mml">Plan</div><div class="mmv" style="font-size:13px">${t.plan}</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--mu);margin:8px 0 4px">Vapi Phone ID</div>
+      <div class="code">${t.vapiPhoneNumberId||'Not set'}</div>
+      <div style="font-size:12px;color:var(--mu);margin:10px 0 4px">Vapi Assistant ID</div>
+      <div class="code">${t.vapiAssistantId||'Not configured'}</div>
+    </div>
+    <div id="tw" style="display:none">
+      <div class="ale ale-o" style="font-size:12px">Share with the company to add to their website form.</div>
+      <div style="font-size:12px;color:var(--mu);margin-bottom:5px">Webhook URL</div>
+      <div class="code">${det.webhookUrl}<button class="cpb" onclick="cp('${det.webhookUrl}',this)">Copy</button></div>
+    </div>
+    <div id="ts" style="display:none">
+      <div class="mg">
+        <div class="mm"><div class="mml">Total Leads</div><div class="mmv">${s.totalLeads}</div></div>
+        <div class="mm"><div class="mml">Called</div><div class="mmv">${s.called}</div></div>
+        <div class="mm"><div class="mml">Booked</div><div class="mmv" style="color:var(--gn)">${s.booked}</div></div>
+      </div>
+      <div style="text-align:center;font-size:30px;font-weight:700;color:var(--ac);margin:10px 0 3px">${s.conversionRate}</div>
+      <div style="text-align:center;font-size:12px;color:var(--mu)">Conversion Rate</div>
+    </div>`;
+  openM('md')
+}
+
+function stab(el,id){
+  el.closest('.modal').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');
+  ['ti','tw','ts'].forEach(i=>{const e=document.getElementById(i);if(e)e.style.display=i===id?'block':'none'})
+}
+
+async function loadLeads(){
+  try{
+    const d=await api('GET','/tenants');T=d.tenants||[];
+    const sel=document.getElementById('lf');
+    sel.innerHTML='<option value="">All Companies</option>'+T.map(t=>`<option value="${t.id}">${t.companyName}</option>`).join('');
+    L=[];
+    for(const t of T){const r=await api('GET','/tenants/'+t.id+'/leads');(r.leads||[]).forEach(l=>{l._cn=t.companyName;L.push(l)})}
+    renderL(L)
+  }catch(e){document.getElementById('lt').innerHTML=`<tr><td colspan="8" style="color:var(--rd);padding:28px;text-align:center">${e.message}</td></tr>`}
+}
+
+function filterLeads(){const tid=document.getElementById('lf').value;renderL(tid?L.filter(l=>l.tenantId===tid):L)}
+
+function renderL(leads){
+  const s=[...leads].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  document.getElementById('lt').innerHTML=s.length===0
+    ?`<tr><td colspan="8" class="empty">No leads yet.</td></tr>`
+    :s.map(l=>`<tr>
+      <td><div style="font-weight:600">${l.name}</div></td>
+      <td style="color:var(--mu)">${l._cn||'—'}</td>
+      <td>${l.serviceType||'—'}</td>
+      <td style="font-family:var(--mo);font-size:11px">${l.phone}</td>
+      <td><span class="badge ${bls(l.status)}">${l.status||'new'}</span></td>
+      <td><span class="badge ${blo(l.outcome)}">${l.outcome||'—'}</span></td>
+      <td style="font-size:11px;color:var(--mu)">${fd(l.createdAt)}</td>
+      <td><button class="btn bg bxs" onclick='openLead(${JSON.stringify(l).replace(/"/g,"&quot;")})'>View</button></td>
+    </tr>`).join('')
+}
+
+function bls(s){if(!s||s==='new')return'bn';if(s==='booked')return'ba';if(s==='called')return'bc';return'bn'}
+function blo(o){if(!o)return'bn';if(o==='booked')return'ba';if(o==='interested')return'bc';if(o==='no_answer')return'br';return'bn'}
+
+function openLead(l){
+  document.getElementById('mlt').textContent=l.name;
+  document.getElementById('mlb').innerHTML=`
+    <div class="mg">
+      <div class="mm"><div class="mml">Phone</div><div class="mmv" style="font-size:12px;font-family:var(--mo)">${l.phone}</div></div>
+      <div class="mm"><div class="mml">Service</div><div class="mmv" style="font-size:12px">${l.serviceType||'—'}</div></div>
+      <div class="mm"><div class="mml">Call</div><div class="mmv" style="font-size:12px">${l.callDuration?l.callDuration+'s':'—'}</div></div>
+    </div>
+    ${l.address?`<div style="font-size:12px;color:var(--mu);margin:8px 0 4px">Address</div><div class="code">${l.address}</div>`:''}
+    ${l.bookingDetails?`<div class="ale ale-o" style="margin-top:10px">🎉 ${l.bookingDetails}</div>`:''}
+    ${l.notes?`<div style="font-size:12px;color:var(--mu);margin:10px 0 4px">Notes</div><div style="font-size:13px">${l.notes}</div>`:''}
+    ${l.callSummary?`<div style="font-size:12px;color:var(--mu);margin:10px 0 4px">Call Summary</div><div style="font-size:12px;color:var(--mu)">${l.callSummary}</div>`:''}`;
+  openM('ml')
+}
+
+async function initRep(){
+  const d=await api('GET','/tenants').catch(()=>({tenants:[]}));T=d.tenants||[];
+  const sel=document.getElementById('rc');
+  sel.innerHTML='<option value="">Select company...</option>'+T.map(t=>`<option value="${t.id}">${t.companyName}</option>`).join('');
+  const ms=document.getElementById('rm');ms.innerHTML='';
+  const now=new Date();
+  for(let i=0;i<6;i++){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    ms.innerHTML+=`<option value="${d.toISOString().slice(0,7)}">${d.toLocaleDateString('en-US',{month:'long',year:'numeric'})}</option>`
+  }
+}
+
+async function loadReport(){
+  const tid=document.getElementById('rc').value,month=document.getElementById('rm').value;
+  if(!tid)return;
+  const ten=T.find(t=>t.id===tid),r=await api('GET','/tenants/'+tid+'/leads');
+  const leads=r.leads||[];
+  const [yr,mo]=month?month.split('-').map(Number):[new Date().getFullYear(),new Date().getMonth()+1];
+  const fil=leads.filter(l=>{const d=new Date(l.createdAt);return d.getFullYear()===yr&&d.getMonth()+1===mo});
+  const bk=fil.filter(l=>l.status==='booked'||l.outcome==='booked');
+  const nb=fil.filter(l=>l.status!=='booked'&&l.outcome!=='booked');
+  const wk=bk.filter(l=>(l.frequency||'').toLowerCase().includes('week')&&!(l.frequency||'').toLowerCase().includes('bi'));
+  const bi=bk.filter(l=>(l.frequency||'').toLowerCase().includes('bi')||(l.frequency||'').toLowerCase().includes('2'));
+  const mo2=bk.filter(l=>(l.frequency||'').toLowerCase().includes('month'));
+  const avg=150,totB=bk.length*avg,totA=fil.length*avg;
+  const ps=new Date(yr,mo-1,1).toLocaleDateString('en-US',{month:'2-digit',day:'2-digit'});
+  const pe=new Date(yr,mo,0).toLocaleDateString('en-US',{month:'2-digit',day:'2-digit'});
+  document.getElementById('rb').innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px">
+      <div><div style="font-size:17px;font-weight:700">${ten.companyName}</div>
+      <div style="font-size:12px;color:var(--mu);margin-top:2px">Period: ${ps} – ${pe}, ${yr}</div></div>
+      <button class="btn bg bxs" onclick="window.print()">🖨 Print</button>
+    </div>
+    <div class="rg">
+      <div class="rb"><div class="rbt">📊 Leads</div>
+        <div class="rr"><span class="rrl">Total leads received</span><span class="rrv">${fil.length}</span></div>
+        <div class="rr"><span class="rrl">Confirmed / Booked</span><span class="rrv g">${bk.length}</span></div>
+        <div class="rr"><span class="rrl">Not confirmed / Cancelled</span><span class="rrv r">${nb.length}</span></div>
+        <div class="rr"><span class="rrl">Conversion rate</span><span class="rrv a">${fil.length>0?((bk.length/fil.length)*100).toFixed(1)+'%':'—'}</span></div>
+      </div>
+      <div class="rb"><div class="rbt">💰 Revenue (Estimated)</div>
+        <div class="rr"><span class="rrl">Total potential</span><span class="rrv">$${totA.toLocaleString()}</span></div>
+        <div class="rr"><span class="rrl">From bookings</span><span class="rrv g">$${totB.toLocaleString()}</span></div>
+        <div class="rr"><span class="rrl">Lost revenue</span><span class="rrv r">$${(totA-totB).toLocaleString()}</span></div>
+        <div class="rr"><span class="rrl">Average per booking</span><span class="rrv">$${bk.length>0?(totB/bk.length).toFixed(0):'—'}</span></div>
+      </div>
+    </div>
+    <div class="rg">
+      <div class="rb"><div class="rbt">✅ Bookings by Frequency — ${bk.length}</div>
+        <div class="fp fw"><span>Every week</span><span>${wk.length} — $${(wk.length*160).toLocaleString()}</span></div>
+        <div class="fp fb"><span>Every 2 weeks</span><span>${bi.length} — $${(bi.length*150).toLocaleString()}</span></div>
+        <div class="fp fm"><span>Once a month</span><span>${mo2.length} — $${(mo2.length*140).toLocaleString()}</span></div>
+        ${bk.length-wk.length-bi.length-mo2.length>0?`<div class="fp" style="background:rgba(107,122,153,.08);border:1px solid var(--bd);color:var(--mu)"><span>Frequency not set</span><span>${bk.length-wk.length-bi.length-mo2.length}</span></div>`:''}
+      </div>
+      <div class="rb"><div class="rbt">📞 Calls</div>
+        <div class="rr"><span class="rrl">Total calls made</span><span class="rrv">${fil.filter(l=>l.callId).length}</span></div>
+        <div class="rr"><span class="rrl">No answer</span><span class="rrv r">${fil.filter(l=>l.outcome==='no_answer').length}</span></div>
+        <div class="rr"><span class="rrl">Interested</span><span class="rrv a">${fil.filter(l=>l.outcome==='interested').length}</span></div>
+        <div class="rr"><span class="rrl">Booked on call</span><span class="rrv g">${bk.length}</span></div>
+      </div>
+    </div>
+    <div class="rb"><div class="rbt">📋 Booking Details</div>
+      ${bk.length===0?'<div style="color:var(--mu);font-size:12px;padding:10px 0">No bookings this period.</div>'
+      :`<table style="width:100%"><thead><tr>
+          <th style="padding:8px 0;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);border-bottom:1px solid var(--bd);font-weight:600">Client</th>
+          <th style="padding:8px 0;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);border-bottom:1px solid var(--bd);font-weight:600">Service</th>
+          <th style="padding:8px 0;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);border-bottom:1px solid var(--bd);font-weight:600">Frequency</th>
+          <th style="padding:8px 0;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--mu);border-bottom:1px solid var(--bd);font-weight:600">Booking</th>
+        </tr></thead><tbody>
+        ${bk.map(l=>`<tr>
+          <td style="padding:9px 0;font-size:12px;border-bottom:1px solid var(--bd)">${l.name}</td>
+          <td style="padding:9px 0;font-size:12px;color:var(--mu);border-bottom:1px solid var(--bd)">${l.serviceType||'—'}</td>
+          <td style="padding:9px 0;border-bottom:1px solid var(--bd)"><span class="badge ${fbadge(l.frequency)}">${l.frequency||'—'}</span></td>
+          <td style="padding:9px 0;font-size:11px;color:var(--mu);border-bottom:1px solid var(--bd)">${l.bookingDetails||'—'}</td>
+        </tr>`).join('')}</tbody></table>`}
+    </div>`;
+}
+
+function fbadge(f){if(!f)return'bn';f=f.toLowerCase();if(f.includes('week')&&!f.includes('bi'))return'ba';if(f.includes('bi')||f.includes('2'))return'bb';return'bc'}
+
+function openNew(){
+  editId=null;
+  document.getElementById('mct').textContent='Add Company';
+  document.getElementById('msb').textContent='Save Company';
+  document.getElementById('mca').innerHTML='';
+  ['mn','mo','me','mv','mar'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mai').value='Hannah';
+  openM('mc')
+}
+
+function openEdit(id){
+  const t=T.find(x=>x.id===id);if(!t)return;
+  editId=id;
+  document.getElementById('mct').textContent='Edit Company';
+  document.getElementById('msb').textContent='Save Changes';
+  document.getElementById('mca').innerHTML='';
+  document.getElementById('mn').value=t.companyName||'';
+  document.getElementById('mo').value=t.ownerName||'';
+  document.getElementById('me').value=t.ownerEmail||'';
+  document.getElementById('mai').value=t.aiName||'Hannah';
+  document.getElementById('mar').value=t.serviceAreas||'';
+  document.getElementById('mv').value=t.vapiPhoneNumberId||'';
+  openM('mc')
+}
+
+async function saveCompany(){
+  const b={companyName:document.getElementById('mn').value,ownerName:document.getElementById('mo').value,ownerEmail:document.getElementById('me').value,aiName:document.getElementById('mai').value||'Hannah',serviceAreas:document.getElementById('mar').value,vapiPhoneNumberId:document.getElementById('mv').value,companyPhone:document.getElementById('mcp').value,reviewLink:document.getElementById('mrl').value};
+  if(!b.companyName||!b.ownerEmail){document.getElementById('mca').innerHTML='<div class="ale ale-e">Name and email required.</div>';return}
+  try{
+    if(editId){await api('PUT','/tenants/'+editId,b);closeM('mc');alert('✅ Company updated!')}
+    else{const r=await api('POST','/tenants',b);closeM('mc');alert('✅ Company created!\n\nWebhook:\n'+r.webhookUrl)}
+    loadCo()
+  }catch(e){document.getElementById('mca').innerHTML=`<div class="ale ale-e">${e.message}</div>`}
+}
+
+async function doSetup(id){
+  const t=T.find(x=>x.id===id);
+  if(t&&t.vapiAssistantId){
+    if(!confirm('Assistant already configured.\n\nClick OK to UPDATE the prompt (recommended)\nThis will NOT create a new assistant.')) return;
+    try{const r=await api('POST','/tenants/'+id+'/setup',{});alert('✅ '+r.message);loadCo()}catch(e){alert('❌ '+e.message)}
+  } else {
+    const ex=prompt('Existing Vapi Assistant ID? (leave blank to create new)');
+    const b=ex?.trim()?{existingAssistantId:ex.trim()}:{};
+    try{const r=await api('POST','/tenants/'+id+'/setup',b);alert('✅ '+r.message);loadCo()}catch(e){alert('❌ '+e.message)}
+  }
+}
+
+async function doInbound(id){
+  const t=T.find(x=>x.id===id);
+  const msg=t&&t.vapiInboundAssistantId
+    ?'Inbound already configured.\n\nClick OK to UPDATE the prompt (recommended)\nThis will NOT create a new assistant.'
+    :'Create inbound assistant? Hannah will answer ALL incoming calls.';
+  if(!confirm(msg))return;
+  try{const r=await api('POST','/tenants/'+id+'/setup-inbound',{});alert('✅ '+r.message)}catch(e){alert('❌ '+e.message)}
+}
+
+async function doPass(id,email){
+  const pw=prompt(`Password for ${email} (min 6 chars):`);
+  if(!pw)return;if(pw.length<6){alert('Too short!');return}
+  try{await api('POST','/tenants/'+id+'/set-password',{password:pw});alert(`✅ Password set!\n\nLogin:\nURL: ${SERVER}/client\nEmail: ${email}\nPassword: ${pw}`)}
+  catch(e){alert('❌ '+e.message)}
+}
+
+async function doDel(id,name){
+  if(!confirm(`Delete ${name}?`))return;
+  await api('DELETE','/tenants/'+id);loadCo()
+}
+
+async function testCall(id){
+  const ph=prompt('Phone for test call:');if(!ph)return;
+  try{const r=await api('POST','/tenants/'+id+'/test-call',{phone:ph,name:'Test Customer'});alert('📞 Call initiated!\nID: '+r.callId)}
+  catch(e){alert('❌ '+e.message)}
+}
+
+async function doColdCall(id){
+  const name  = prompt("Prospect name:");
+  if(!name) return;
+  const phone = prompt("Prospect phone (e.g. 3215550199):");
+  if(!phone) return;
+  const addr  = prompt("Address (optional):") || "";
+  const notes = prompt("Notes (optional):") || "";
+  try{
+    const r=await api('POST','/tenants/'+id+'/cold-call',{name,phone,address:addr,notes});
+    alert('📞 Cold call initiated!\nCall ID: '+r.callId+'\n\nHannah will call '+name+' now as a cold prospect.');
+  }catch(e){alert('❌ '+e.message)}
+}
+
+function saveSettings(){
+  SECRET=document.getElementById('ss').value;
+  SERVER=document.getElementById('su').value||location.origin;
+  localStorage.setItem('ca_k',SECRET);localStorage.setItem('ca_s',SERVER);
+  document.getElementById('sa').innerHTML='<div class="ale ale-o">Saved!</div>';
+  setTimeout(()=>document.getElementById('sa').innerHTML='',2000)
+}
+
+function openM(id){document.getElementById(id).classList.add('open')}
+function closeM(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')}));
+function cp(text,btn){navigator.clipboard.writeText(text);btn.textContent='Copied!';setTimeout(()=>btn.textContent='Copy',1500)}
+function fd(iso){if(!iso)return'—';return new Date(iso).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}
+
+document.getElementById('ss').value=SECRET;
+document.getElementById('su').value=SERVER;
+if(!SECRET){
+  go('settings');
+  document.getElementById('sa').innerHTML='<div class="ale ale-e">Enter your Admin Secret Key to get started.</div>';
+} else {
+  loadDash();
+}
+</script>
+
+<!-- Mobile Bottom Nav -->
+<nav class="mob-nav" id="mob-nav">
+  <button class="mni active" id="mni-dashboard" onclick="go('dashboard')"><span class="mni-ico">📊</span>Dashboard</button>
+  <button class="mni" id="mni-companies" onclick="go('companies')"><span class="mni-ico">🏢</span>Companies</button>
+  <button class="mni" id="mni-leads" onclick="go('leads')"><span class="mni-ico">📋</span>Leads</button>
+  <button class="mni" id="mni-reports" onclick="go('reports')"><span class="mni-ico">📈</span>Reports</button>
+  <button class="mni" id="mni-settings" onclick="go('settings')"><span class="mni-ico">⚙️</span>Settings</button>
+</nav>
+</body>
+</html>

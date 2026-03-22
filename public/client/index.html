@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>CleanAI — My Dashboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; min-height: 100vh; }
+
+  /* Login screen */
+  .login-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .login-box { background: #1a1d27; border: 1px solid #2d3148; border-radius: 16px; padding: 36px 32px; width: 100%; max-width: 400px; }
+  .login-logo { font-size: 24px; font-weight: 700; color: #7c6af7; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+  .login-logo-dot { width: 10px; height: 10px; background: #7c6af7; border-radius: 50%; }
+  .login-sub { font-size: 14px; color: #64748b; margin-bottom: 28px; }
+  .login-title { font-size: 20px; font-weight: 700; color: #f1f5f9; margin-bottom: 20px; }
+
+  /* Dashboard */
+  .dashboard { display: none; }
+  .topbar { background: #1a1d27; border-bottom: 1px solid #2d3148; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 10; }
+  .topbar-logo { font-size: 18px; font-weight: 700; color: #7c6af7; display: flex; align-items: center; gap: 6px; }
+  .topbar-dot { width: 8px; height: 8px; background: #7c6af7; border-radius: 50%; }
+  .topbar-company { font-size: 14px; color: #94a3b8; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .content { padding: 20px; max-width: 900px; margin: 0 auto; }
+
+  /* Stats */
+  .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 24px; }
+  @media (min-width: 600px) { .stats-grid { grid-template-columns: repeat(4, 1fr); } }
+  .stat-card { background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px; padding: 16px; }
+  .stat-label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+  .stat-value { font-size: 26px; font-weight: 700; color: #f1f5f9; }
+  .stat-sub { font-size: 12px; color: #7c6af7; margin-top: 4px; }
+
+  /* Section title */
+  .section-title { font-size: 16px; font-weight: 700; color: #f1f5f9; margin-bottom: 12px; margin-top: 24px; }
+
+  /* Lead cards (mobile-friendly) */
+  .lead-card { background: #1a1d27; border: 1px solid #2d3148; border-radius: 12px; padding: 16px; margin-bottom: 10px; }
+  .lead-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .lead-name { font-size: 15px; font-weight: 600; color: #f1f5f9; }
+  .lead-date { font-size: 12px; color: #64748b; }
+  .lead-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .lead-info { font-size: 13px; color: #94a3b8; }
+  .lead-booking { background: #14532d22; border: 1px solid #166534; border-radius: 8px; padding: 10px 12px; margin-top: 10px; font-size: 13px; color: #86efac; }
+
+  /* Badges */
+  .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+  .badge-booked { background: #14532d; color: #86efac; }
+  .badge-called { background: #312e81; color: #a5b4fc; }
+  .badge-new { background: #2d2f4e; color: #c4b5fd; }
+  .badge-failed { background: #7f1d1d; color: #fca5a5; }
+
+  /* Empty state */
+  .empty { text-align: center; padding: 48px 20px; color: #64748b; font-size: 14px; }
+
+  /* Form */
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 13px; color: #94a3b8; margin-bottom: 6px; font-weight: 500; }
+  .form-input { width: 100%; padding: 10px 12px; background: #0f1117; border: 1px solid #2d3148; border-radius: 8px; color: #e2e8f0; font-size: 14px; outline: none; transition: border .15s; }
+  .form-input:focus { border-color: #7c6af7; }
+
+  /* Buttons */
+  .btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all .15s; display: inline-flex; align-items: center; gap: 6px; width: 100%; justify-content: center; }
+  .btn-primary { background: #7c6af7; color: #fff; }
+  .btn-primary:hover { background: #6b58f0; }
+  .btn-outline { background: transparent; color: #94a3b8; border: 1px solid #2d3148; width: auto; }
+  .btn-outline:hover { color: #e2e8f0; border-color: #475569; }
+
+  /* Alert */
+  .alert { padding: 12px 16px; border-radius: 8px; font-size: 14px; margin-bottom: 16px; }
+  .alert-error { background: #7f1d1d22; border: 1px solid #991b1b; color: #fca5a5; }
+  .alert-success { background: #14532d22; border: 1px solid #166534; color: #86efac; }
+
+  /* Tab nav */
+  .tabs { display: flex; gap: 4px; border-bottom: 1px solid #2d3148; margin-bottom: 20px; overflow-x: auto; }
+  .tab { padding: 10px 16px; font-size: 14px; cursor: pointer; border-bottom: 2px solid transparent; color: #64748b; white-space: nowrap; transition: all .15s; }
+  .tab.active { color: #7c6af7; border-bottom-color: #7c6af7; font-weight: 600; }
+
+  /* Loading */
+  .loading { text-align: center; padding: 40px; color: #64748b; font-size: 14px; }
+  .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid #2d3148; border-top-color: #7c6af7; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN ── -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <div class="login-logo"><div class="login-logo-dot"></div> CleanAI</div>
+    <div class="login-sub">Business Dashboard</div>
+    <div class="login-title">Sign in to your account</div>
+
+    <div id="login-alert"></div>
+
+    <div class="form-group">
+      <label class="form-label">Email</label>
+      <input type="email" id="login-email" class="form-input" placeholder="you@yourcompany.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input type="password" id="login-password" class="form-input" placeholder="Your password" autocomplete="current-password">
+    </div>
+
+    <button class="btn btn-primary" onclick="doLogin()" id="login-btn">Sign In</button>
+
+    <div style="margin-top:16px;text-align:center;font-size:13px;color:#475569">
+      Powered by CleanAI · <a href="#" style="color:#7c6af7">Need help?</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── DASHBOARD ── -->
+<div class="dashboard" id="dashboard">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div>
+      <div class="topbar-logo"><div class="topbar-dot"></div> CleanAI</div>
+      <div class="topbar-company" id="topbar-company">Loading...</div>
+    </div>
+    <div class="topbar-right">
+      <button class="btn btn-outline" onclick="doLogout()">Sign out</button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Stats -->
+    <div class="stats-grid" style="margin-top:20px">
+      <div class="stat-card">
+        <div class="stat-label">Total Leads</div>
+        <div class="stat-value" id="c-stat-leads">—</div>
+        <div class="stat-sub">all time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Calls Made</div>
+        <div class="stat-value" id="c-stat-calls">—</div>
+        <div class="stat-sub">by AI</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Bookings</div>
+        <div class="stat-value" id="c-stat-booked" style="color:#86efac">—</div>
+        <div class="stat-sub">confirmed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Conversion</div>
+        <div class="stat-value" id="c-stat-rate" style="color:#7c6af7">—</div>
+        <div class="stat-sub">close rate</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(this,'tab-bookings')">Bookings</div>
+      <div class="tab" onclick="switchTab(this,'tab-leads')">All Leads</div>
+    </div>
+
+    <!-- Bookings tab -->
+    <div id="tab-bookings">
+      <div id="bookings-list" class="loading"><div class="spinner"></div></div>
+    </div>
+
+    <!-- All Leads tab -->
+    <div id="tab-leads" style="display:none">
+      <div id="leads-list" class="loading"><div class="spinner"></div></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Config ────────────────────────────────────────────────
+const SERVER = window.location.origin;
+let currentTenant = null;
+let currentLeads  = [];
+
+// ── Login ─────────────────────────────────────────────────
+async function doLogin() {
+  const email    = document.getElementById("login-email").value.trim();
+  const password = document.getElementById("login-password").value.trim();
+  const btn      = document.getElementById("login-btn");
+  const alert    = document.getElementById("login-alert");
+
+  if (!email || !password) {
+    alert.innerHTML = '<div class="alert alert-error">Please enter your email and password.</div>';
+    return;
+  }
+
+  btn.innerHTML = '<div class="spinner"></div> Signing in...';
+  btn.disabled  = true;
+
+  try {
+    const res = await fetch(`${SERVER}/api/client/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(data.error || "Invalid credentials");
+
+    // Save session
+    sessionStorage.setItem("cleanai_client_token",  data.token);
+    sessionStorage.setItem("cleanai_client_tenant", JSON.stringify(data.tenant));
+
+    loadDashboard(data.tenant, data.token);
+
+  } catch (err) {
+    document.getElementById("login-alert").innerHTML =
+      `<div class="alert alert-error">${err.message}</div>`;
+    btn.innerHTML = "Sign In";
+    btn.disabled  = false;
+  }
+}
+
+// Allow Enter key to login
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && document.getElementById("login-screen").style.display !== "none") doLogin();
+});
+
+// ── Load Dashboard ────────────────────────────────────────
+async function loadDashboard(tenant, token) {
+  currentTenant = tenant;
+
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("dashboard").style.display    = "block";
+  document.getElementById("topbar-company").textContent = tenant.companyName;
+  document.title = `${tenant.companyName} — CleanAI`;
+
+  try {
+    const res = await fetch(`${SERVER}/api/client/leads`, {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    const data = await res.json();
+    currentLeads = data.leads || [];
+    renderStats(currentLeads);
+    renderBookings(currentLeads);
+    renderLeads(currentLeads);
+  } catch (err) {
+    console.error("Failed to load leads:", err);
+  }
+}
+
+// ── Stats ─────────────────────────────────────────────────
+function renderStats(leads) {
+  const booked = leads.filter(l => l.status === "booked" || l.outcome === "booked");
+  const called = leads.filter(l => l.callId);
+  const rate   = leads.length > 0 ? ((booked.length / leads.length) * 100).toFixed(0) + "%" : "0%";
+
+  document.getElementById("c-stat-leads").textContent  = leads.length;
+  document.getElementById("c-stat-calls").textContent  = called.length;
+  document.getElementById("c-stat-booked").textContent = booked.length;
+  document.getElementById("c-stat-rate").textContent   = rate;
+}
+
+// ── Bookings tab ──────────────────────────────────────────
+function renderBookings(leads) {
+  const booked = leads.filter(l => l.status === "booked" || l.outcome === "booked")
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  if (booked.length === 0) {
+    document.getElementById("bookings-list").innerHTML =
+      '<div class="empty">No confirmed bookings yet. When a customer books, it appears here!</div>';
+    return;
+  }
+
+  document.getElementById("bookings-list").innerHTML = booked.map(l => `
+    <div class="lead-card">
+      <div class="lead-card-top">
+        <div class="lead-name">${l.name}</div>
+        <span class="badge badge-booked">Booked</span>
+      </div>
+      <div class="lead-row">
+        <span class="lead-info">📱 ${l.phone}</span>
+        ${l.email ? `<span class="lead-info">✉️ ${l.email}</span>` : ""}
+      </div>
+      <div class="lead-row">
+        ${l.serviceType ? `<span class="lead-info">🧹 ${l.serviceType}</span>` : ""}
+        ${l.address ? `<span class="lead-info">📍 ${l.address}</span>` : ""}
+      </div>
+      ${l.bookingDetails ? `
+        <div class="lead-booking">
+          ✅ ${l.bookingDetails}
+        </div>` : ""}
+      <div style="margin-top:8px;font-size:12px;color:#475569">${formatDate(l.createdAt)}</div>
+    </div>
+  `).join("");
+}
+
+// ── All Leads tab ─────────────────────────────────────────
+function renderLeads(leads) {
+  if (leads.length === 0) {
+    document.getElementById("leads-list").innerHTML =
+      '<div class="empty">No leads yet. When someone fills out your form, they appear here!</div>';
+    return;
+  }
+
+  const sorted = [...leads].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  document.getElementById("leads-list").innerHTML = sorted.map(l => `
+    <div class="lead-card">
+      <div class="lead-card-top">
+        <div class="lead-name">${l.name}</div>
+        <span class="badge badge-${l.outcome === "booked" ? "booked" : l.status === "called" ? "called" : "new"}">
+          ${l.outcome === "booked" ? "Booked" : l.status === "called" ? "Called" : "New"}
+        </span>
+      </div>
+      <div class="lead-row">
+        <span class="lead-info">📱 ${l.phone}</span>
+        ${l.serviceType ? `<span class="lead-info">🧹 ${l.serviceType}</span>` : ""}
+      </div>
+      ${l.callDuration ? `<div style="margin-top:4px;font-size:12px;color:#64748b">Call duration: ${l.callDuration}s</div>` : ""}
+      ${l.bookingDetails ? `<div class="lead-booking">✅ ${l.bookingDetails}</div>` : ""}
+      <div style="margin-top:8px;font-size:12px;color:#475569">${formatDate(l.createdAt)}</div>
+    </div>
+  `).join("");
+}
+
+// ── Tabs ──────────────────────────────────────────────────
+function switchTab(el, tabId) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  el.classList.add("active");
+  ["tab-bookings", "tab-leads"].forEach(id => {
+    document.getElementById(id).style.display = id === tabId ? "block" : "none";
+  });
+}
+
+// ── Logout ────────────────────────────────────────────────
+function doLogout() {
+  sessionStorage.removeItem("cleanai_client_token");
+  sessionStorage.removeItem("cleanai_client_tenant");
+  document.getElementById("dashboard").style.display    = "none";
+  document.getElementById("login-screen").style.display = "flex";
+  document.getElementById("login-password").value = "";
+}
+
+// ── Helpers ───────────────────────────────────────────────
+function formatDate(iso) {
+  if (!iso) return "";
+  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
+// ── Auto-login from session ───────────────────────────────
+const savedToken  = sessionStorage.getItem("cleanai_client_token");
+const savedTenant = sessionStorage.getItem("cleanai_client_tenant");
+if (savedToken && savedTenant) {
+  loadDashboard(JSON.parse(savedTenant), savedToken);
+}
+</script>
+</body>
+</html>
