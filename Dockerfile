@@ -46,4 +46,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 ENTRYPOINT ["dumb-init", "--"]
 
 # Rodar aplicação
-CMD ["node", "server-completo.js"]
+CMD ["node", "server.js"]
