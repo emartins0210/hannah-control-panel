@@ -7,9 +7,9 @@
       "active": true,
       "aiName": "Hannah",
       "serviceAreas": "Florida",
-      "vapiAssistantId": "hannah-lopes-cleaning",
-      "vapiPhoneNumberId": null,
-      "vapiInboundAssistantId": "hannah-lopes-inbound",
+      "vapiAssistantId": "353195f5-6161-4e33-8a77-f21c9dc50943",
+      "vapiPhoneNumberId": "02ccb30c-ab0d-4982-87cd-3007e040ea4e",
+      "vapiInboundAssistantId": "353195f5-6161-4e33-8a77-f21c9dc50943",
       "googleCalendarId": "your_calendar_id@group.calendar.google.com",
       "createdAt": "2026-03-22T01:38:48.443Z"
     },
@@ -20,9 +20,9 @@
       "active": true,
       "aiName": "Hannah",
       "serviceAreas": "Florida",
-      "vapiAssistantId": "hannah-lopes-cleaning",
-      "vapiPhoneNumberId": null,
-      "vapiInboundAssistantId": "hannah-lopes-inbound",
+      "vapiAssistantId": "353195f5-6161-4e33-8a77-f21c9dc50943",
+      "vapiPhoneNumberId": "02ccb30c-ab0d-4982-87cd-3007e040ea4e",
+      "vapiInboundAssistantId": "353195f5-6161-4e33-8a77-f21c9dc50943",
       "googleCalendarId": "your_calendar_id@group.calendar.google.com",
       "createdAt": "2026-03-22T01:38:48.443Z"
     },
@@ -33,9 +33,9 @@
       "active": true,
       "aiName": "Hannah",
       "serviceAreas": "Florida",
-      "vapiAssistantId": "hannah-lopes-cleaning",
-      "vapiPhoneNumberId": null,
-      "vapiInboundAssistantId": "hannah-lopes-inbound",
+      "vapiAssistantId": "353195f5-6161-4e33-8a77-f21c9dc50943",
+      "vapiPhoneNumberId": "02ccb30c-ab0d-4982-87cd-3007e040ea4e",
+      "vapiInboundAssistantId": "353195f5-6161-4e33-8a77-f21c9dc50943",
       "googleCalendarId": "your_calendar_id@group.calendar.google.com",
       "createdAt": "2026-03-22T01:38:48.443Z"
     }

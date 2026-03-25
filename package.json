@@ -2,10 +2,10 @@
   "name": "agendador-fabolaservices-multicliente",
   "version": "2.0.0",
   "description": "Sistema inteligente de agendamento de limpeza multi-cliente com equipes - Fabíola Services",
-  "main": "server-completo.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node server-completo.js",
-    "dev": "nodemon server-completo.js",
+    "start": "node server.js",
+    "dev": "nodemon server.js",
     "auth": "node server-auth.js",
     "auth-dev": "nodemon server-auth.js",
     "importar": "node importar-clientes-excel.js",
