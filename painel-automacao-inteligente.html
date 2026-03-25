@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Automação Inteligente - Fabíola Services</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 28px;
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: #f5f5f5;
+            border-radius: 5px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .card h3 {
+            color: #667eea;
+            margin-top: 15px;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .equipe-card {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .equipe-nome {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .equipe-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .form-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        .alert.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            display: block;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .tab {
+            padding: 12px 20px;
+            background: #f5f5f5;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab.active {
+            background: white;
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .resultado {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 Painel de Automação Inteligente</h1>
+            <p style="color: #666; margin-top: 5px;">Fabíola Services - Sistema de Distribuição Automática de Equipes</p>
+            
+            <div class="status-header">
+                <div class="status-item">
+                    <div class="status-dot"></div>
+                    <span>Sistema Ativo</span>
+                </div>
+                <div class="status-item">
+                    <span id="hora-atual">--:--:--</span>
+                </div>
+                <button onclick="atualizarDados()" style="background: #667eea;">🔄 Atualizar</button>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- COLUNA 1: Distribuição Atual -->
+            <div class="card">
+                <h2>📊 Distribuição Atual das Equipes</h2>
+                <div id="distribuicao-equipes">
+                    <p style="text-align: center; color: #999;">Carregando...</p>
+                </div>
+            </div>
+
+            <!-- COLUNA 2: Status do Sistema -->
+            <div class="card">
+                <h2>⚙️ Status do Sistema</h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-number" id="stat-google-maps">?</div>
+                        <div class="stat-label">Google Maps</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="stat-whatsapp">?</div>
+                        <div class="stat-label">WhatsApp</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="stat-email">?</div>
+                        <div class="stat-label">Email</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number" id="stat-gestor">?</div>
+                        <div class="stat-label">Gestor Financeiro</div>
+                    </div>
+                </div>
+                <h3 style="margin-top: 20px;">Integração</h3>
+                <div id="integracao-status" style="font-size: 13px; color: #666;">
+                    Carregando...
+                </div>
+            </div>
+        </div>
+
+        <!-- FORMULÁRIO E TESTES -->
+        <div class="form-section">
+            <h2>📝 Testar Automação</h2>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="mudarAba('agendar')">➕ Agendar House</button>
+                <button class="tab" onclick="mudarAba('simular')">📋 Simular Distribuição</button>
+                <button class="tab" onclick="mudarAba('selecionar')">👥 Selecionar Equipe</button>
+                <button class="tab" onclick="mudarAba('api')">🔌 API Direto</button>
+            </div>
+
+            <div id="alert-container"></div>
+
+            <!-- ABA 1: Agendar House -->
+            <div id="agendar" class="tab-content active">
+                <h3>Agendar Nova House</h3>
+                <p style="color: #666; margin-bottom: 15px; font-size: 14px;">
+                    Simule o agendamento de uma nova house. O sistema calculará automaticamente qual equipe deve atendê-la.
+                </p>
+                
+                <form onsubmit="agendarHouse(event)">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>ID do Cliente</label>
+                            <input type="text" id="clienteId" placeholder="CLIENTE-123" value="CLIENTE-TEST-001" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Data Prevista</label>
+                            <input type="datetime-local" id="dataPrevista" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Endereço</label>
+                            <input type="text" id="endereco" placeholder="123 Main Street" value="123 Main Street" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Cidade</label>
+                            <input type="text" id="cidade" placeholder="Melbourne" value="Melbourne" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Estado</label>
+                            <input type="text" id="estado" placeholder="FL" value="FL" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Frequência</label>
+                            <select id="frequencia">
+                                <option value="semanal">Semanal</option>
+                                <option value="quinzenal">Quinzenal</option>
+                                <option value="mensal">Mensal</option>
+                                <option value="uma_vez">Uma Vez</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" style="margin-top: 15px;">✅ Agendar House</button>
+                </form>
+
+                <div id="resultado-agendar" class="resultado"></div>
+            </div>
+
+            <!-- ABA 2: Simular Distribuição -->
+            <div id="simular" class="tab-content">
+                <h3>Simular Distribuição Múltipla</h3>
+                <p style="color: #666; margin-bottom: 15px; font-size: 14px;">
+                    Teste como o sistema distribuiria múltiplas houses entre as equipes.
+                </p>
+
+                <div class="form-group">
+                    <label>Houses (JSON)</label>
+                    <textarea id="houses-json" rows="6" placeholder='[
+  {"endereco": "123 Main", "city": "Melbourne", "state": "FL"},
+  {"endereco": "456 Oak", "city": "Palm Bay", "state": "FL"}
+]'>[
+  {"endereco": "123 Main Street", "city": "Melbourne", "state": "FL"},
+  {"endereco": "456 Oak Avenue", "city": "Palm Bay", "state": "FL"},
+  {"endereco": "789 Pine Road", "city": "West Melbourne", "state": "FL"}
+]</textarea>
+                </div>
+
+                <button onclick="simularDistribuicao()" style="margin-top: 15px;">📋 Simular Distribuição</button>
+                <div id="resultado-simular" class="resultado"></div>
+            </div>
+
+            <!-- ABA 3: Selecionar Equipe -->
+            <div id="selecionar" class="tab-content">
+                <h3>Selecionar Equipe para Localização</h3>
+                <p style="color: #666; margin-bottom: 15px; font-size: 14px;">
+                    Veja qual equipe o sistema recomendaria para uma localização específica.
+                </p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Endereço</label>
+                        <input type="text" id="endereco-sel" placeholder="123 Main Street" value="999 Test Lane" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Cidade</label>
+                        <input type="text" id="cidade-sel" placeholder="Melbourne" value="Melbourne" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <input type="text" id="estado-sel" placeholder="FL" value="FL" required>
+                    </div>
+                </div>
+
+                <button onclick="selecionarEquipe()" style="margin-top: 15px;">👥 Selecionar Equipe</button>
+                <div id="resultado-selecionar" class="resultado"></div>
+            </div>
+
+            <!-- ABA 4: API Direto -->
+            <div id="api" class="tab-content">
+                <h3>Chamar API Diretamente</h3>
+                <p style="color: #666; margin-bottom: 15px; font-size: 14px;">
+                    Endpoints disponíveis para integração programática.
+                </p>
+
+                <h4 style="margin-top: 20px; color: #333;">Endpoints</h4>
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 12px; overflow-x: auto;">
+                    <div><strong>GET</strong> /api/automacao/status</div>
+                    <div style="margin-top: 10px;"><strong>GET</strong> /api/automacao/distribuicao-equipes</div>
+                    <div style="margin-top: 10px;"><strong>GET</strong> /api/automacao/selecionar-equipe?endereco=...&city=...&state=...</div>
+                    <div style="margin-top: 10px;"><strong>POST</strong> /api/automacao/processar-house-agendada</div>
+                    <div style="margin-top: 10px;"><strong>POST</strong> /api/automacao/simular-distribuicao</div>
+                </div>
+
+                <h4 style="margin-top: 20px; color: #333;">Testar Endpoint</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Endpoint</label>
+                        <select id="endpoint-select" onchange="atualizarExemplo()">
+                            <option value="status">/api/automacao/status</option>
+                            <option value="distribuicao">/api/automacao/distribuicao-equipes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button onclick="chamarApi()" style="margin-top: 15px;">🔌 Chamar API</button>
+                <div id="resultado-api" class="resultado"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Definir hora atual
+        function atualizarHora() {
+            const agora = new Date();
+            document.getElementById('hora-atual').textContent = 
+                agora.toLocaleTimeString('pt-BR');
+        }
+        setInterval(atualizarHora, 1000);
+        atualizarHora();
+
+        // Mudar abas
+        function mudarAba(abaId) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(abaId).classList.add('active');
+        }
+
+        // Mostrar alertas
+        function mostrarAlerta(mensagem, tipo = 'info') {
+            const container = document.getElementById('alert-container');
+            const alerta = document.createElement('div');
+            alerta.className = `alert ${tipo}`;
+            alerta.textContent = mensagem;
+            container.appendChild(alerta);
+            
+            setTimeout(() => alerta.remove(), 5000);
+        }
+
+        // Atualizar dados do painel
+        async function atualizarDados() {
+            try {
+                // Carregar distribuição
+                const distRes = await fetch('/api/automacao/distribuicao-equipes');
+                const distData = await distRes.json();
+                
+                let html = '';
+                for (const [equipe, stats] of Object.entries(distData.equipes)) {
+                    html += `
+                        <div class="equipe-card">
+                            <div class="equipe-nome">${equipe}</div>
+                            <div class="equipe-info">
+                                <div class="info-item">
+                                    <span>👥 Clientes:</span>
+                                    <strong>${stats.totalClientes}</strong>
+                                </div>
+                                <div class="info-item">
+                                    <span>📅 Esta semana:</span>
+                                    <strong>${stats.agendamentosSemanais}</strong>
+                                </div>
+                                <div class="info-item">
+                                    <span>💰 Receita:</span>
+                                    <strong>$${stats.receita.toFixed(2)}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+                document.getElementById('distribuicao-equipes').innerHTML = html;
+
+                // Carregar status
+                const statusRes = await fetch('/api/automacao/status');
+                const statusData = await statusRes.json();
+                
+                document.getElementById('stat-google-maps').textContent = 
+                    statusData.configuracoes.googleMapsIntegrado ? '✅' : '❌';
+                document.getElementById('stat-whatsapp').textContent = 
+                    statusData.configuracoes.whatsappIntegrado ? '✅' : '❌';
+                document.getElementById('stat-email').textContent = 
+                    statusData.configuracoes.emailIntegrado ? '✅' : '❌';
+                document.getElementById('stat-gestor').textContent = 
+                    statusData.configuracoes.gestorFinanceiroIntegrado ? '✅' : '❌';
+
+                let integracao = '<ul style="list-style: none;">';
+                for (const [key, value] of Object.entries(statusData.configuracoes)) {
+                    const label = key.replace(/([A-Z])/g, ' $1').trim();
+                    integracao += `<li>• ${label}: ${value ? '✅ Ativo' : '⚠️ Desativado'}</li>`;
+                }
+                integracao += '</ul>';
+                document.getElementById('integracao-status').innerHTML = integracao;
+
+            } catch (erro) {
+                mostrarAlerta('Erro ao atualizar dados: ' + erro.message, 'error');
+            }
+        }
+
+        // Agendar house
+        async function agendarHouse(event) {
+            event.preventDefault();
+            
+            const dados = {
+                clienteId: document.getElementById('clienteId').value,
+                endereco: document.getElementById('endereco').value,
+                city: document.getElementById('cidade').value,
+                state: document.getElementById('estado').value,
+                dataPrevistaServico: document.getElementById('dataPrevista').value,
+                frequencia: document.getElementById('frequencia').value
+            };
+
+            try {
+                const res = await fetch('/api/automacao/processar-house-agendada', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
+
+                const resultado = await res.json();
+                document.getElementById('resultado-agendar').textContent = JSON.stringify(resultado, null, 2);
+                
+                if (resultado.sucesso) {
+                    mostrarAlerta(resultado.mensagem, 'success');
+                    atualizarDados();
+                } else {
+                    mostrarAlerta('Erro: ' + resultado.erro, 'error');
+                }
+            } catch (erro) {
+                mostrarAlerta('Erro na requisição: ' + erro.message, 'error');
+            }
+        }
+
+        // Simular distribuição
+        async function simularDistribuicao() {
+            try {
+                const housesJson = JSON.parse(document.getElementById('houses-json').value);
+                
+                const res = await fetch('/api/automacao/simular-distribuicao', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ houses: housesJson })
+                });
+
+                const resultado = await res.json();
+                document.getElementById('resultado-simular').textContent = JSON.stringify(resultado, null, 2);
+                mostrarAlerta('Simulação realizada com sucesso', 'success');
+            } catch (erro) {
+                mostrarAlerta('Erro: ' + erro.message, 'error');
+            }
+        }
+
+        // Selecionar equipe
+        async function selecionarEquipe() {
+            try {
+                const params = new URLSearchParams({
+                    endereco: document.getElementById('endereco-sel').value,
+                    city: document.getElementById('cidade-sel').value,
+                    state: document.getElementById('estado-sel').value
+                });
+
+                const res = await fetch(`/api/automacao/selecionar-equipe?${params}`);
+                const resultado = await res.json();
+                document.getElementById('resultado-selecionar').textContent = JSON.stringify(resultado, null, 2);
+                mostrarAlerta('Equipe selecionada: ' + resultado.equipeSelecionada, 'success');
+            } catch (erro) {
+                mostrarAlerta('Erro: ' + erro.message, 'error');
+            }
+        }
+
+        // Chamar API
+        async function chamarApi() {
+            try {
+                const endpoint = document.getElementById('endpoint-select').value;
+                const urls = {
+                    'status': '/api/automacao/status',
+                    'distribuicao': '/api/automacao/distribuicao-equipes'
+                };
+
+                const res = await fetch(urls[endpoint]);
+                const resultado = await res.json();
+                document.getElementById('resultado-api').textContent = JSON.stringify(resultado, null, 2);
+            } catch (erro) {
+                mostrarAlerta('Erro: ' + erro.message, 'error');
+            }
+        }
+
+        // Carregar dados ao abrir
+        window.addEventListener('load', atualizarDados);
+    </script>
+</body>
+</html>

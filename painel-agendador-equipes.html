@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agendador Fabíola - Sistema Integrado</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+    .container { max-width: 1600px; margin: 0 auto; padding: 20px; }
+    header { 
+      background: white;
+      padding: 25px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    header h1 { color: #667eea; margin-bottom: 5px; font-size: 28px; }
+    header p { color: #666; font-size: 14px; }
+    .dashboard { display: grid; grid-template-columns: 250px 1fr; gap: 20px; }
+    .sidebar { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); height: fit-content; }
+    .sidebar h2 { font-size: 16px; margin-bottom: 15px; color: #667eea; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+    .team-btn { 
+      width: 100%; 
+      padding: 10px; 
+      margin: 8px 0; 
+      background: #f0f0f0; 
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .team-btn:hover { background: #e8e8e8; border-color: #667eea; }
+    .team-btn.ativo { background: #667eea; color: white; border-color: #667eea; }
+    .main-panel { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .main-panel h2 { color: #667eea; margin-bottom: 20px; font-size: 20px; display: flex; align-items: center; }
+    .main-panel h2 span { font-size: 14px; color: #999; margin-left: 10px; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee; }
+    .tab-btn { 
+      padding: 10px 20px; 
+      background: none; 
+      border: none; 
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: #999;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s;
+    }
+    .tab-btn.ativo { color: #667eea; border-bottom-color: #667eea; }
+    .tab-content { display: none; }
+    .tab-content.ativo { display: block; }
+    .clients-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .clients-table th, .clients-table td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+    .clients-table th { background: #f8f9fa; color: #667eea; font-weight: 600; }
+    .clients-table tr:hover { background: #f8f9fa; }
+    .status-badge { 
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-ativo { background: #d4edda; color: #155724; }
+    .status-inativo { background: #f8d7da; color: #721c24; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 13px; }
+    .form-group input, .form-group select, .form-group textarea { 
+      width: 100%; 
+      padding: 8px; 
+      border: 1px solid #ddd; 
+      border-radius: 5px;
+      font-size: 13px;
+    }
+    .form-group input:focus, .form-group select:focus { 
+      outline: none; 
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    .btn { 
+      padding: 10px 20px; 
+      border: none; 
+      border-radius: 5px; 
+      cursor: pointer; 
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .btn-primary { background: #667eea; color: white; }
+    .btn-primary:hover { background: #5568d3; }
+    .btn-success { background: #28a745; color: white; }
+    .btn-success:hover { background: #218838; }
+    .btn-secondary { background: #6c757d; color: white; }
+    .btn-secondary:hover { background: #5a6268; }
+    .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+    .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 8px; }
+    .stat-card strong { font-size: 24px; display: block; margin-bottom: 5px; }
+    .stat-card small { font-size: 12px; opacity: 0.9; }
+    .onboarding-kit { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 15px 0; border-radius: 5px; }
+    .onboarding-kit h4 { color: #856404; margin-bottom: 10px; }
+    .onboarding-kit ul { margin-left: 20px; color: #856404; }
+    .onboarding-kit li { margin: 5px 0; }
+    @media (max-width: 1024px) { .dashboard { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🏠 Agendador Fabíola Services</h1>
+      <p>Sistema Inteligente de Agendamento de Limpeza - Multi-Equipe e Multi-Cliente</p>
+    </header>
+
+    <div class="dashboard">
+      <div class="sidebar">
+        <h2>👥 Equipes</h2>
+        <button class="team-btn ativo" onclick="filtrarEquipe('todos')">📊 Todos os Clientes</button>
+        <button class="team-btn" onclick="filtrarEquipe('team-1')">🟦 Equipe 1</button>
+        <button class="team-btn" onclick="filtrarEquipe('team-2')">🟩 Equipe 2</button>
+        <button class="team-btn" onclick="filtrarEquipe('team-3')">🟪 Equipe 3</button>
+
+        <hr style="margin: 20px 0;">
+
+        <h2>⚙️ Ações</h2>
+        <button class="team-btn" style="background: #667eea; color: white;" onclick="abrirNovoCliente()">
+          ➕ Novo Cliente
+        </button>
+        <button class="team-btn" style="background: #28a745; color: white;" onclick="abrirKit()">
+          📦 Kit Onboarding
+        </button>
+        <button class="team-btn" style="background: #ffc107; color: #333;" onclick="exportarDados()">
+          📥 Exportar Dados
+        </button>
+      </div>
+
+      <div class="main-panel">
+        <div class="stats" id="stats">
+          <div class="stat-card">
+            <strong id="totalClientes">--</strong>
+            <small>Total de Clientes</small>
+          </div>
+          <div class="stat-card">
+            <strong id="totalEquipes">3</strong>
+            <small>Equipes Ativas</small>
+          </div>
+          <div class="stat-card">
+            <strong id="totalValor">--</strong>
+            <small>Valor Total MR</small>
+          </div>
+          <div class="stat-card">
+            <strong id="clientesAtivos">--</strong>
+            <small>Clientes Ativos</small>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <button class="tab-btn ativo" onclick="abertarTab('clientes')">👥 Clientes</button>
+          <button class="tab-btn" onclick="abertarTab('agendamento')">📅 Agendamento</button>
+          <button class="tab-btn" onclick="abertarTab('equipes')">🏢 Equipes</button>
+        </div>
+
+        <!-- Tab Clientes -->
+        <div id="tab-clientes" class="tab-content ativo">
+          <div style="margin-bottom: 15px;">
+            <input type="text" id="filtroNome" placeholder="🔍 Filtrar por nome..." style="width: 300px; padding: 8px;">
+          </div>
+          <div id="clientesContainer" style="overflow-x: auto;">
+            <table class="clients-table" id="tabelaClientes">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Telefone</th>
+                  <th>Email</th>
+                  <th>Cidade</th>
+                  <th>Frequência</th>
+                  <th>Valor</th>
+                  <th>Equipe</th>
+                  <th>Status</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="corpoTabela">
+                <tr><td colspan="9" style="text-align: center; padding: 20px;">Carregando clientes...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tab Agendamento -->
+        <div id="tab-agendamento" class="tab-content">
+          <h3 style="margin-bottom: 15px;">Agendar Limpeza para Cliente</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+              <div class="form-group">
+                <label>Selecione o Cliente</label>
+                <select id="clienteSelect">
+                  <option value="">-- Carregando --</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Adicionar Casa</label>
+                <input type="text" id="enderecoCasa" placeholder="Endereço da casa">
+              </div>
+              <div class="form-group">
+                <label>Latitude</label>
+                <input type="number" id="latCasa" placeholder="28.2634" step="0.0001">
+              </div>
+              <div class="form-group">
+                <label>Longitude</label>
+                <input type="number" id="lonCasa" placeholder="-80.7282" step="0.0001">
+              </div>
+              <div class="form-group">
+                <label>Tipo de Limpeza</label>
+                <select id="tipoCasa">
+                  <option value="regular">Limpeza Regular (2:40)</option>
+                  <option value="deepclean">Deep Clean (4:30)</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" onclick="adicionarCasaNovoCliente()">Adicionar Casa</button>
+            </div>
+            <div>
+              <div id="casasAdicionadas" style="background: #f8f9fa; padding: 15px; border-radius: 5px; min-height: 200px;">
+                <p style="color: #999; text-align: center;">Casas aparecerão aqui</p>
+              </div>
+              <button class="btn btn-success" style="width: 100%; margin-top: 15px;" onclick="executarAgendamento()">
+                🚀 Executar Agendamento
+              </button>
+            </div>
+          </div>
+          <div id="resultadoAgendamento" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- Tab Equipes -->
+        <div id="tab-equipes" class="tab-content">
+          <h3 style="margin-bottom: 15px;">Distribuição por Equipe</h3>
+          <div id="equipesContainer" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+            <!-- Preenchido por JavaScript -->
+          </div>
+        </div>
+
+        <!-- Modal Novo Cliente -->
+        <div id="modalNovoCliente" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000;">
+          <div style="background: white; margin: 50px auto; padding: 30px; border-radius: 10px; width: 90%; max-width: 600px;">
+            <h3 style="margin-bottom: 20px;">Novo Cliente</h3>
+            <div class="form-group">
+              <label>Nome</label>
+              <input type="text" id="novoClienteNome">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+              <div class="form-group">
+                <label>Telefone</label>
+                <input type="tel" id="novoClienteTel">
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="novoClienteEmail">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Endereço</label>
+              <input type="text" id="novoClienteEnd">
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+              <div class="form-group">
+                <label>Cidade</label>
+                <input type="text" id="novoClienteCid" value="Palm Bay">
+              </div>
+              <div class="form-group">
+                <label>Estado</label>
+                <input type="text" id="novoClienteEst" value="FL">
+              </div>
+              <div class="form-group">
+                <label>ZIP</label>
+                <input type="text" id="novoClienteZip">
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+              <div class="form-group">
+                <label>Valor Mensal ($)</label>
+                <input type="number" id="novoClienteVal" step="0.01">
+              </div>
+              <div class="form-group">
+                <label>Equipe</label>
+                <select id="novoClienteTeam">
+                  <option value="team-1">Equipe 1</option>
+                  <option value="team-2">Equipe 2</option>
+                  <option value="team-3">Equipe 3</option>
+                </select>
+              </div>
+            </div>
+            <div class="btn-group">
+              <button class="btn btn-success" style="flex: 1;" onclick="salvarNovoCliente()">Salvar Cliente</button>
+              <button class="btn btn-secondary" style="flex: 1;" onclick="fecharModal('modalNovoCliente')">Cancelar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api/completo';
+    let equipeAtualFiltro = 'todos';
+    let clientesGlobal = [];
+
+    // Funções de UI
+    function abertarTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('ativo'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('ativo'));
+      document.getElementById(`tab-${tabName}`)?.classList.add('ativo');
+      event.target.classList.add('ativo');
+    }
+
+    function filtrarEquipe(equipeId) {
+      equipeAtualFiltro = equipeId;
+      document.querySelectorAll('.team-btn').forEach(el => el.classList.remove('ativo'));
+      event.target.classList.add('ativo');
+      carregarClientes();
+    }
+
+    function abrirNovoCliente() {
+      document.getElementById('modalNovoCliente').style.display = 'block';
+    }
+
+    function fecharModal(modalId) {
+      document.getElementById(modalId).style.display = 'none';
+    }
+
+    async function salvarNovoCliente() {
+      const novoCliente = {
+        nome: document.getElementById('novoClienteNome').value,
+        telefone: document.getElementById('novoClienteTel').value,
+        email: document.getElementById('novoClienteEmail').value,
+        endereco: document.getElementById('novoClienteEnd').value,
+        cidade: document.getElementById('novoClienteCid').value,
+        estado: document.getElementById('novoClienteEst').value,
+        zip: document.getElementById('novoClienteZip').value,
+        valor: parseFloat(document.getElementById('novoClienteVal').value),
+        equipeId: document.getElementById('novoClienteTeam').value
+      };
+
+      try {
+        const response = await fetch(`${API_URL}/cliente`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(novoCliente)
+        });
+        const data = await response.json();
+        if (data.sucesso) {
+          alert('Cliente criado com sucesso!');
+          fecharModal('modalNovoCliente');
+          carregarClientes();
+        }
+      } catch (erro) {
+        alert('Erro: ' + erro.message);
+      }
+    }
+
+    async function carregarClientes() {
+      try {
+        const response = await fetch(`${API_URL}/clientes`);
+        const data = await response.json();
+        clientesGlobal = data.clientes;
+        exibirClientes();
+        atualizarStats();
+        carregarEquipes();
+      } catch (erro) {
+        console.error('Erro:', erro);
+      }
+    }
+
+    function exibirClientes() {
+      let clientes = clientesGlobal;
+      
+      if (equipeAtualFiltro !== 'todos') {
+        clientes = clientes.filter(c => c.equipeId === equipeAtualFiltro);
+      }
+
+      const tbody = document.getElementById('corpoTabela');
+      if (clientes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 20px;">Nenhum cliente encontrado</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = clientes.map(c => `
+        <tr>
+          <td><strong>${c.nome}</strong></td>
+          <td>${c.telefone}</td>
+          <td>${c.email}</td>
+          <td>${c.cidade}</td>
+          <td>${c.frequencia}</td>
+          <td>$${c.valor.toFixed(2)}</td>
+          <td>${obterNomeEquipe(c.equipeId)}</td>
+          <td><span class="status-badge status-${c.status}">${c.status.toUpperCase()}</span></td>
+          <td>
+            <button class="btn btn-primary" style="padding: 5px 10px;" onclick="editar('${c.id}')">Editar</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function obterNomeEquipe(equipeId) {
+      const nomes = { 'team-1': '🟦 T1', 'team-2': '🟩 T2', 'team-3': '🟪 T3' };
+      return nomes[equipeId] || 'Sem equipe';
+    }
+
+    function atualizarStats() {
+      const ativos = clientesGlobal.filter(c => c.status === 'ativo').length;
+      const total = clientesGlobal.length;
+      const valor = clientesGlobal.reduce((sum, c) => sum + c.valor, 0);
+
+      document.getElementById('totalClientes').textContent = total;
+      document.getElementById('totalValor').textContent = '$' + valor.toFixed(0);
+      document.getElementById('clientesAtivos').textContent = ativos;
+    }
+
+    function carregarEquipes() {
+      const container = document.getElementById('equipesContainer');
+      const nomes = { 'team-1': 'Equipe 1', 'team-2': 'Equipe 2', 'team-3': 'Equipe 3' };
+      
+      container.innerHTML = Object.keys(nomes).map(teamId => {
+        const clientes = clientesGlobal.filter(c => c.equipeId === teamId);
+        const valor = clientes.reduce((sum, c) => sum + c.valor, 0);
+        
+        return `
+          <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea;">
+            <h4>${nomes[teamId]}</h4>
+            <p><strong>${clientes.length}</strong> clientes</p>
+            <p>Valor: <strong>$${valor.toFixed(0)}</strong></p>
+            <p style="font-size: 12px; color: #999; margin-top: 10px;">
+              ${clientes.map(c => c.nome.split(' ')[0]).join(', ')}${clientes.length > 3 ? '...' : ''}
+            </p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function abrirKit() {
+      alert('Kit de Onboarding: Todos os documentos estão em /kit-onboarding/');
+    }
+
+    function exportarDados() {
+      const json = JSON.stringify(clientesGlobal, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `clientes-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+    }
+
+    // Inicializar
+    carregarClientes();
+  </script>
+</body>
+</html>

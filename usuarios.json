@@ -1,0 +1,21 @@
+{
+  "usuarios": [
+    {
+      "id": "admin_fabiola",
+      "nome": "Fabíola",
+      "email": "fabiola@lopeservices.com",
+      "senha": "admin123456",
+      "tipo": "admin",
+      "ativo": true
+    },
+    {
+      "id": "cliente_aventine",
+      "nome": "Aventine at West Melbourne",
+      "email": "contact@aventine.com",
+      "senha": "aventine123",
+      "tipo": "cliente",
+      "clienteId": "cliente_aventine_at_west_melbourne_1774394623228",
+      "ativo": true
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # Serviço principal da aplicação
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: agendador-fabolaservices
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - TZ=America/New_York
+    volumes:
+      # Persistir dados entre restarts
+      - agendador-dados:/app/dados-clientes
+      # Persistir logs
+      - agendador-logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - agendador-network
+    labels:
+      - "com.example.app=agendador-fabolaservices"
+      - "com.example.version=2.0.0"
+
+  # MongoDB (opcional, para versão futura)
+  # mongo:
+  #   image: mongo:latest
+  #   container_name: agendador-mongo
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: admin
+  #     MONGO_INITDB_ROOT_PASSWORD: senha-super-segura
+  #   volumes:
+  #     - agendador-mongo-data:/data/db
+  #   restart: unless-stopped
+  #   networks:
+  #     - agendador-network
+
+  # Redis (opcional, para cache)
+  # redis:
+  #   image: redis:alpine
+  #   container_name: agendador-redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - agendador-redis-data:/data
+  #   restart: unless-stopped
+  #   networks:
+  #     - agendador-network
+
+volumes:
+  agendador-dados:
+    driver: local
+  agendador-logs:
+    driver: local
+  # agendador-mongo-data:
+  #   driver: local
+  # agendador-redis-data:
+  #   driver: local
+
+networks:
+  agendador-network:
+    driver: bridge

@@ -13,6 +13,7 @@ const router   = express.Router();
 const tenantDb = require("../modules/tenantDb");
 const leadDb   = require("../modules/leadDb");
 const { notify, buildWhatsAppMessage } = require("../modules/twilioNotify");
+const { log }  = require("../modules/guard");
 
 router.post("/:tenantId", (req, res) => {
   const { tenantId } = req.params;
@@ -94,17 +95,30 @@ function handleTranscript(tenant, callId, event) {
 
       const lead = findLeadByCallId(callId);
 
-      // Parse scheduled date from bookingInfo — "Service, Tuesday, 10am"
+      // Parse scheduled date from bookingInfo
+      // Format: "Service, Day, Time, Address (optional), City (optional)"
       const parts        = bookingInfo.split(",").map(s => s.trim());
       const scheduledISO = buildScheduledDate(parts[1], parts[2]);
 
-      // Update lead with booking details + scheduledDate
+      // Extract city (part[4]) and address (part[3]) if present
+      const bookingAddress = parts[3] || null;
+      const bookingCity    = parts[4] || null;
+
+      // ── Scheduling intelligence: assign car based on city & workload ──
+      const carAssignment = assignCar(bookingCity, parts[0], scheduledISO);
+      log.info(`🚗 Car assigned: ${carAssignment.car} | City: ${bookingCity || "unknown"} | Service: ${parts[0]}`);
+
+      // Update lead with booking details + scheduledDate + car assignment
       updateLeadByCallId(callId, {
-        status:        "booked",
-        outcome:       "booked",
+        status:         "booked",
+        outcome:        "booked",
         bookingDetails: bookingInfo,
-        bookedAt:      new Date().toISOString(),
-        scheduledDate: scheduledISO || null,
+        bookedAt:       new Date().toISOString(),
+        scheduledDate:  scheduledISO || null,
+        bookingAddress: bookingAddress,
+        bookingCity:    bookingCity,
+        assignedCar:    carAssignment.car,
+        maidpadGroup:   carAssignment.group,
       });
 
       if (!lead) return;
@@ -118,9 +132,17 @@ function handleTranscript(tenant, callId, event) {
       };
 
       // 1. Notify Fabíola (WhatsApp)
+      const dateFormatted = scheduledISO
+        ? new Date(scheduledISO).toLocaleDateString("en-US", {weekday:"long", month:"long", day:"numeric"})
+        : parts[1] || "TBD";
+
       const whatsappMsg = buildWhatsAppMessage(
         "new_booking", clientInfo, tenant,
-        `🧹 *Serviço:* ${bookingInfo}${scheduledISO ? "\n📅 *Data:* " + new Date(scheduledISO).toLocaleDateString("en-US", {weekday:"long", month:"long", day:"numeric"}) : ""}`
+        `🧹 *Serviço:* ${parts[0]}\n` +
+        `📅 *Data:* ${dateFormatted} às ${parts[2] || "TBD"}\n` +
+        `📍 *Endereço:* ${bookingAddress || clientInfo.address || "Ver cadastro"}\n` +
+        `🏙️ *Cidade:* ${bookingCity || "Não informada"}\n` +
+        `🚗 *Carro:* ${carAssignment.car} (Grupo ${carAssignment.group} MaidPad)`
       );
       notify(tenant, "new_booking", clientInfo, whatsappMsg);
 
@@ -235,6 +257,82 @@ function updateLeadByCallId(callId, fields) {
   if (!callId) return;
   const lead = findLeadByCallId(callId);
   if (lead) leadDb.update(lead.id, fields);
+}
+
+// ── Car assignment logic ──────────────────────────────────
+// Rules:
+//   - 3 active cars → MaidPad Groups 1, 2, 3
+//   - Priority: assign to car with least workload that day
+//   - Location priority: Palm Bay and closest cities
+//   - Deep cleaning: max 2 per car per day
+//   - Regular: max 4 per car per day (standard is 3)
+//   - Time slots: 8:00 AM, 10:40 AM, 1:20 PM (2h40 gap)
+//   - Deep clean gap: 4h30 → only 8:00 AM slot
+
+const PALM_BAY_PRIORITY = [
+  "palm bay", "west melbourne", "viera", "satellite beach",
+  "rockledge", "malabar", "melbourne"
+];
+
+function assignCar(city, serviceType, scheduledISO) {
+  const isDeep     = (serviceType || "").toLowerCase().includes("deep") ||
+                     (serviceType || "").toLowerCase().includes("move");
+  const cityNorm   = (city || "").toLowerCase().trim();
+  const dateKey    = scheduledISO ? scheduledISO.substring(0, 10) : new Date().toISOString().substring(0, 10);
+
+  // Load all leads for that day to count workload per car
+  let allLeads = [];
+  try {
+    allLeads = leadDb.getAll ? leadDb.getAll() : [];
+  } catch (e) { allLeads = []; }
+
+  const dayLeads = allLeads.filter(l =>
+    l.status === "booked" && l.scheduledDate && l.scheduledDate.startsWith(dateKey)
+  );
+
+  // Count jobs per car for that day
+  const carCounts = { 1: 0, 2: 0, 3: 0 };
+  const deepCounts = { 1: 0, 2: 0, 3: 0 };
+  for (const l of dayLeads) {
+    const car = l.assignedCar;
+    if (car >= 1 && car <= 3) {
+      carCounts[car]++;
+      if ((l.bookingDetails || "").toLowerCase().includes("deep") ||
+          (l.bookingDetails || "").toLowerCase().includes("move")) {
+        deepCounts[car]++;
+      }
+    }
+  }
+
+  // Priority: city closest to Palm Bay → prefer car 1
+  // (car 1 = Group 1, starts Palm Bay area; car 2 = central Melbourne; car 3 = northern)
+  const palmBayIdx = PALM_BAY_PRIORITY.findIndex(area => cityNorm.includes(area));
+  const cityPriority = palmBayIdx >= 0 ? Math.floor(palmBayIdx / 3) : 2; // 0=south, 1=central, 2=north
+
+  // Preferred car order based on city proximity to Palm Bay
+  const carOrder = cityPriority === 0 ? [1, 2, 3]
+    : cityPriority === 1             ? [2, 1, 3]
+    :                                  [3, 2, 1];
+
+  // Find best car: least workload, not exceeding limits
+  const maxRegular = 4;
+  const maxDeep    = 2;
+
+  for (const car of carOrder) {
+    const count     = carCounts[car]  || 0;
+    const deepCount = deepCounts[car] || 0;
+
+    if (isDeep && deepCount >= maxDeep) continue;  // car full on deep cleans
+    if (count >= maxRegular)            continue;  // car full
+
+    log.info(`  → Car ${car} selected (${count} jobs today, ${deepCount} deep, city: ${cityNorm || "unknown"})`);
+    return { car, group: car };
+  }
+
+  // All cars at limit — assign to least busy
+  const leastBusy = Object.entries(carCounts).sort((a,b) => a[1] - b[1])[0][0];
+  log.warn(`⚠️ All cars at capacity — assigning overflow to Car ${leastBusy}`);
+  return { car: parseInt(leastBusy), group: parseInt(leastBusy) };
 }
 
 module.exports = router;

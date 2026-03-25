@@ -33,11 +33,11 @@ app.use(rateLimiter(120, 60000)); // 120 req/min per IP
 app.use(express.static(path.join(__dirname, "public")));
 
 // ── Routes ───────────────────────────────────────────────
-app.use("/api/webhook",      require("./routes/webhook"));
-app.use("/api/vapi/webhook", require("./routes/vapiWebhook"));
-app.use("/api/admin",        require("./routes/admin"));
-app.use("/api/client",       require("./routes/clientAuth"));
-app.use("/api/lookup",       require("./routes/clientLookup"));
+app.use("/api/webhook",         require("./routes/webhook"));
+app.use("/api/vapi/webhook",    require("./routes/vapiWebhook"));
+app.use("/api/admin",           require("./routes/admin"));
+app.use("/api/client",          require("./routes/clientAuth"));
+app.use("/api/lookup",          require("./routes/clientLookup"));
 
 // ── Health check ─────────────────────────────────────────
 app.get("/health", (req, res) => {

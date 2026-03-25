@@ -1,0 +1,253 @@
+╔═════════════════════════════════════════════════════════════════════════════╗
+║                 CHECKLIST INTERATIVO - HANNAH 3.0                           ║
+║                  Proteção Automática do Sistema                             ║
+║                    22 de Março de 2026                                      ║
+╚═════════════════════════════════════════════════════════════════════════════╝
+
+HOJE - AÇÕES IMEDIATAS (22 de Março - 5 minutos)
+─────────────────────────────────────────────────────────────────────────────
+
+[ ] 1. TESTE DO SISTEMA (3 minutos)
+    └─ Disque: +1 321 384-9782
+    └─ Aguarde 2-5 segundos
+    └─ Confirme que Hannah responde corretamente
+    └─ Se conectar: ✅ TESTE BEM-SUCEDIDO
+
+[ ] 2. LEITURA RÁPIDA (2 minutos)
+    └─ Abra: RESUMO_EXECUTIVO.txt
+    └─ Leia os 5 minutos
+    └─ Entenda o status: ✅ ENTENDIDO
+
+
+ESTA SEMANA - IMPLEMENTAÇÃO (23-27 de Março - 1.5 horas)
+─────────────────────────────────────────────────────────────────────────────
+
+SEMANA SEGUNDA (23 de Março)
+
+[ ] 3. PREPARE O AMBIENTE (15 minutos)
+    └─ Abra terminal/linha de comando
+    └─ Navegue até seu projeto Hannah
+    └─ Verifique se tem server.js: ls server.js
+    └─ Verifique se tem modules/: ls modules/
+    └─ Se não tem: mkdir -p modules
+    └─ Status: ✅ AMBIENTE PRONTO
+
+[ ] 4. COPIE OS ARQUIVOS DE PROTEÇÃO (10 minutos)
+    └─ Copie: modules_health-monitor.js → modules/health-monitor.js
+    └─ Copie: modules_backup-manager.js → modules/backup-manager.js
+    └─ Verifique: ls modules/health-monitor.js
+    └─ Verifique: ls modules/backup-manager.js
+    └─ Status: ✅ ARQUIVOS COPIADOS
+
+[ ] 5. EDITE server.js (15 minutos)
+    └─ Abra: server.js em seu editor
+    └─ Adicione requires no topo (vide INSTRUCOES_EDITAR_SERVER.md)
+    └─ Inicialize healthMonitor após criar app
+    └─ Inicialize backupManager
+    └─ Salve o arquivo (Ctrl+S ou Cmd+S)
+    └─ Status: ✅ SERVER.JS EDITADO
+    
+    ⚠️  DICA: Siga exatamente: INSTRUCOES_EDITAR_SERVER.md
+
+[ ] 6. FAÇA DEPLOY (15 minutos)
+    └─ Abra terminal
+    └─ Digite: git add server.js modules/
+    └─ Digite: git commit -m "feat: add health monitor and backups"
+    └─ Digite: git push origin main
+    └─ Aguarde 1-2 minutos para Railway fazer deploy
+    └─ Status: ✅ DEPLOY REALIZADO
+
+[ ] 7. TESTE EM PRODUÇÃO (20 minutos)
+    └─ Aguarde servidor reiniciar (1-2 min)
+    └─ Teste health check:
+       curl https://seu-url.railway.app/health
+    └─ Resultado esperado: {"status":"ok", ...}
+    └─ Se funcionou: ✅ HEALTH CHECK OK
+    
+    └─ Faça uma chamada de teste:
+       Disque: +1 321 384-9782
+    └─ Confirme que Hannah responde normalmente
+    └─ Se funcionou: ✅ CHAMADA OK
+    
+    └─ Verifique logs:
+       No Railway Dashboard → Logs
+       Procure por: [HEALTH] ou [BACKUP]
+    └─ Se vê logs: ✅ LOGS OK
+    
+    └─ Verifique se backup foi criado:
+       No Railway SSH ou em backup/
+       ls backup/
+    └─ Se vê arquivo: ✅ BACKUP CRIADO
+
+[ ] 8. DOCUMENTAÇÃO (5 minutos)
+    └─ Leia: VERIFICACAO_HANNAH_3.0_COMPLETA.md
+    └─ Leia: PLANO_ACAO_PRATICO.md
+    └─ Entenda as próximas fases
+    └─ Status: ✅ DOCUMENTADO
+
+
+PRÓXIMAS 2 SEMANAS (28 de Março - 10 de Abril)
+─────────────────────────────────────────────────────────────────────────────
+
+[ ] 9. DATA CLEANUP AUTOMÁTICO (Semana 2 - Prioridade MÉDIA)
+    └─ Criar: modules/data-cleanup.js
+    └─ Implementar: Remoção de dados com 90+ dias
+    └─ Agendar: Rodar diariamente às 2 AM
+    └─ Testar: Verificar que dados antigos são removidos
+    └─ Status: ⏳ PENDENTE
+
+[ ] 10. VALIDAÇÃO DE WEBHOOK VAPI (Semana 2 - Prioridade MÉDIA)
+    └─ Editar: modules/security.js
+    └─ Adicionar: Verificação de assinatura VAPI
+    └─ Testar: Rejeitar webhooks inválidos
+    └─ Logar: Tentativas suspeitas
+    └─ Status: ⏳ PENDENTE
+
+[ ] 11. PERSISTÊNCIA DE LOGS (Semana 2 - Prioridade MÉDIA)
+    └─ Criar: modules/log-manager.js
+    └─ Implementar: Salvar logs em arquivo
+    └─ Implementar: Rotação de arquivos (7 dias)
+    └─ Testar: Verificar arquivo logs/YYYY-MM-DD.log
+    └─ Status: ⏳ PENDENTE
+
+
+PRÓXIMAS 4 SEMANAS (11 de Abril - 25 de Abril)
+─────────────────────────────────────────────────────────────────────────────
+
+[ ] 12. ALERTAS AUTOMÁTICOS (Semana 3-4 - Prioridade BAIXA)
+    └─ Implementar: Notificações por email
+    └─ Implementar: Notificações por Slack
+    └─ Configurar: Alertar em caso de erro crítico
+    └─ Testar: Simular erro e receber alerta
+    └─ Status: ⏳ PENDENTE
+
+[ ] 13. DASHBOARD VISUAL (Semana 4 - Prioridade BAIXA)
+    └─ Criar: public/dashboard.html
+    └─ Implementar: Gráficos de status
+    └─ Implementar: Métricas em tempo real
+    └─ Testar: Acessar dashboard.html no navegador
+    └─ Status: ⏳ PENDENTE
+
+
+VERIFICAÇÃO FINAL
+─────────────────────────────────────────────────────────────────────────────
+
+Antes de considerar "COMPLETO", verifique:
+
+✅ FUNCIONALIDADE
+   [ ] Health monitor rodando a cada 5 min
+   [ ] Backup automático a cada 1 hora
+   [ ] Chamadas do Hannah funcionando normalmente
+   [ ] Leads sendo coletados e salvos
+
+✅ SEGURANÇA
+   [ ] Servidor nunca cai (crash protection)
+   [ ] Dados são protegidos (backup)
+   [ ] Logs são registrados
+   [ ] Nenhuma credencial exposada
+
+✅ MONITORAMENTO
+   [ ] /health endpoint funciona
+   [ ] Logs aparecem em [HEALTH]
+   [ ] Backups aparecem em /backup
+   [ ] Dashboard mostra status
+
+✅ OPERAÇÃO
+   [ ] Deploy automático funciona
+   [ ] Railway está configurado
+   [ ] Alertas (quando implementados) funcionam
+   [ ] Documentação atualizada
+
+✅ TESTE
+   [ ] Ligação para +1 321 384-9782 funciona
+   [ ] Health check retorna "ok"
+   [ ] Pelo menos 1 backup foi criado
+   [ ] Sem erros nos logs
+
+
+RESUMO DE PROGRESSO
+─────────────────────────────────────────────────────────────────────────────
+
+FASE 1: URGENTE (Esta Semana)
+├─ [_/8] Ações completadas
+├─ Tempo: ~1.5 horas
+└─ Status: 🚨 EM ANDAMENTO
+
+FASE 2: IMPORTANTE (Próximas 2 semanas)
+├─ [_/3] Ações completadas
+├─ Tempo: ~3 horas
+└─ Status: ⏳ AGUARDANDO
+
+FASE 3: MELHORIAS (Próximas 4 semanas)
+├─ [_/2] Ações completadas
+├─ Tempo: ~5 horas
+└─ Status: ⏳ AGUARDANDO
+
+
+LEGENDA
+─────────────────────────────────────────────────────────────────────────────
+[ ] = Não começado
+[✓] = Concluído
+[_] = Em andamento
+⏳ = Aguardando
+✅ = Verificado e OK
+⚠️  = Atenção necessária
+🚨 = Crítico/Urgente
+
+
+DICAS IMPORTANTES
+─────────────────────────────────────────────────────────────────────────────
+
+1️⃣  FAÇA TUDO NA ORDEM!
+    Não pule passos. Cada passo prepara o próximo.
+
+2️⃣  TESTE DEPOIS DE CADA MUDANÇA!
+    Se algo quebrar, você saberá exatamente o que causou.
+
+3️⃣  LEIA A DOCUMENTAÇÃO!
+    INSTRUCOES_EDITAR_SERVER.md é muito importante.
+
+4️⃣  GUARDE ESTA LISTA!
+    Use como referência enquanto implementa.
+
+5️⃣  TIRA DÚVIDAS ANTES!
+    Se não entender alguma instrução, leia PLANO_ACAO_PRATICO.md
+
+6️⃣  COMMITS PEQUENOS!
+    Não tente fazer tudo de uma vez. Commits frequentes.
+
+7️⃣  TESTE EM PRODUÇÃO!
+    Não confie apenas em testes locais.
+
+8️⃣  DOCUMENTE TUDO!
+    Quando implementar, atualize a documentação.
+
+
+RECURSOS DISPONÍVEIS
+─────────────────────────────────────────────────────────────────────────────
+
+📄 INSTRUCOES_EDITAR_SERVER.md     → Como editar o servidor
+📄 PLANO_ACAO_PRATICO.md           → Guia completo passo-a-passo
+📄 VERIFICACAO_HANNAH_3.0_COMPLETA → Análise técnica detalhada
+📄 DASHBOARD_HANNAH_3.0.txt         → Status visual do sistema
+📄 modules_health-monitor.js        → Código pronto para usar
+📄 modules_backup-manager.js        → Código pronto para usar
+📄 SCRIPT_IMPLEMENTACAO.sh          → Script automático (opcional)
+
+Todos os arquivos estão na pasta do seu projeto!
+
+
+CONTATO & SUPORTE
+─────────────────────────────────────────────────────────────────────────────
+
+Hannah AI:     +1 321 384-9782 (24/7)
+Email:         suporte@cleanai.com
+Documentação:  Consulte os arquivos .md e .txt
+
+═════════════════════════════════════════════════════════════════════════════════
+
+COMECE AGORA! 🚀
+
+Próximo passo: Teste o número +1 321 384-9782
+
+═════════════════════════════════════════════════════════════════════════════════

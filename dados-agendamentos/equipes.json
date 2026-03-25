@@ -1,0 +1,41 @@
+[
+  {
+    "id": 1,
+    "nome": "Equipe Centro",
+    "latitude": -23.5505,
+    "longitude": -46.6333,
+    "agendamentosHoje": 1,
+    "cargaSemanal": 1,
+    "profissionais": [
+      "Maria Silva",
+      "João Santos"
+    ],
+    "contato": "+5511999990001"
+  },
+  {
+    "id": 2,
+    "nome": "Equipe Sul",
+    "latitude": -23.615,
+    "longitude": -46.5527,
+    "agendamentosHoje": 0,
+    "cargaSemanal": 0,
+    "profissionais": [
+      "Ana Costa",
+      "Pedro Oliveira"
+    ],
+    "contato": "+5511999990002"
+  },
+  {
+    "id": 3,
+    "nome": "Equipe Norte",
+    "latitude": -23.45,
+    "longitude": -46.55,
+    "agendamentosHoje": 0,
+    "cargaSemanal": 0,
+    "profissionais": [
+      "Carla Mendes",
+      "Felipe Gomes"
+    ],
+    "contato": "+5511999990003"
+  }
+]

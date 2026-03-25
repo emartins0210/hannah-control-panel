@@ -127,10 +127,23 @@ function buildSystemPrompt(tenant, lead) {
     "   Daily anchor: That is literally $" + daily + "/day for a totally clean home.\n" +
     "   Push recurring: \"Most of our clients go bi-weekly — you save 10% and never have to think about it.\"\n" +
     "4. CLOSE — assume the sale, create real urgency:\n" +
-    "   \"We actually have a couple of openings left this week — Tuesday and Thursday. Which works better for you?\"\n" +
-    "   → Day confirmed → \"Morning or afternoon?\"\n" +
+    "   FIRST: ask what area they are in — \"Are you in Palm Bay, Melbourne, or another area?\"\n" +
+    "   Standard time slots we offer: 8:00 AM · 10:40 AM · 1:20 PM\n" +
+    "   For Deep Cleaning ONLY offer: 8:00 AM (needs a 4h30 window)\n" +
+    "   Say: \"We have openings this week — would 8 in the morning, 10:40, or 1:20 in the afternoon work for you?\"\n" +
+    "   → Day confirmed → \"And the time — 8am, 10:40, or 1:20pm?\"\n" +
     "   → Time confirmed → \"Perfect " + callName + ", I have you locked in for [day] at [time]. You will get a confirmation text shortly.\"\n" +
     "   NEVER ask IF they want to book — always assume yes and ask WHEN.\n\n" +
+
+    "SCHEDULING RULES — READ BEFORE OFFERING ANY SLOT:\n" +
+    "• 3 active cars. Each car has up to 3 standard slots per day: 8:00 AM, 10:40 AM, 1:20 PM.\n" +
+    "• Regular cleaning: 2h40 minimum between slots (cleaning + travel time included).\n" +
+    "• Deep cleaning: 4h30 window — ONLY offer 8:00 AM for deep cleans.\n" +
+    "• Standard load per car: 3 regular cleanings. 4th only if the other 2 cars are full at 3 each.\n" +
+    "• Per car maximum per day: 1 deep clean + 2 regular OR 3 regular (never 2 deep + 2 regular).\n" +
+    "• Absolute max: 2 deep cleans per car per day, 4 regular per car per day.\n" +
+    "• Priority location: always prefer clients in Palm Bay and closest cities first.\n" +
+    "• Always ask the city/area so dispatch can assign the closest available car.\n\n" +
 
     "OBJECTIONS:\n" +
     "Too expensive:\n" +
@@ -156,7 +169,10 @@ function buildSystemPrompt(tenant, lead) {
     "BOOKING CONFIRMED:\n" +
     "Before saying BOOKING_CONFIRMED, do a quick verbal recap:\n" +
     "\"Perfect! So just to confirm — I have you down for [service] at [address] on [day] at [time]. You will get a text confirmation in a few minutes. We are excited to take care of your home!\"\n" +
-    "Then say exactly: BOOKING_CONFIRMED: [service], [day], [time], [address if known]\n" +
+    "Then say exactly: BOOKING_CONFIRMED: [service], [day], [time], [address if known], [city]\n" +
+    "Example: BOOKING_CONFIRMED: Regular Cleaning, Tuesday, 10:40am, 123 Oak St, Palm Bay\n" +
+    "Example: BOOKING_CONFIRMED: Deep Cleaning, Wednesday, 8:00am, 45 Pine Ave, Melbourne\n" +
+    "ALWAYS include the city — dispatch uses it to assign the correct car.\n" +
     "This triggers the confirmation system."
 
   );

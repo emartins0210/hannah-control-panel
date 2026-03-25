@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendador de Limpeza - Gestor Financeiro Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1F4E78 0%, #2A5C9F 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .section {
+            border: 2px solid #E8EEF7;
+            border-radius: 8px;
+            padding: 20px;
+            background: #F8FAFB;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1F4E78;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #DDD;
+            border-radius: 5px;
+            font-size: 13px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #F0F4FF;
+            color: #667eea;
+            border: 1px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #FF6B6B;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #EE5A52;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        th {
+            background: #E8EEF7;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+            color: #1F4E78;
+            border-bottom: 2px solid #DDD;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #EEE;
+        }
+
+        tr:hover {
+            background: #F5F8FF;
+        }
+
+        .result-section {
+            grid-column: 1 / -1;
+        }
+
+        .schedule-box {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .schedule-box h4 {
+            color: #1F4E78;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .schedule-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 12px;
+            border-bottom: 1px solid #EEE;
+        }
+
+        .schedule-item:last-child {
+            border-bottom: none;
+        }
+
+        .time {
+            font-weight: 600;
+            color: #667eea;
+            min-width: 60px;
+        }
+
+        .type {
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .type.regular {
+            background: #D4F4DD;
+            color: #22863A;
+        }
+
+        .type.deep {
+            background: #FFF3CD;
+            color: #856404;
+        }
+
+        .address {
+            flex: 1;
+            margin: 0 10px;
+            color: #555;
+        }
+
+        .distance {
+            color: #999;
+            font-size: 11px;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat {
+            background: white;
+            padding: 12px;
+            border-radius: 5px;
+            text-align: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #999;
+            margin-top: 3px;
+        }
+
+        .validation {
+            background: white;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .validation-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 12px;
+            border-bottom: 1px solid #EEE;
+        }
+
+        .validation-item:last-child {
+            border-bottom: none;
+        }
+
+        .check-icon {
+            margin-right: 8px;
+            font-weight: bold;
+        }
+
+        .check-icon.success {
+            color: #22B14C;
+        }
+
+        .check-icon.warning {
+            color: #FFA500;
+        }
+
+        .check-icon.error {
+            color: #FF0000;
+        }
+
+        .export-box {
+            background: #F0F4FF;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .json-output {
+            background: #2D2D2D;
+            color: #F8F8F2;
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.4;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 1000px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+            .result-section {
+                grid-column: 1;
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚗 Agendador Inteligente de Limpeza</h1>
+            <p>Integrado ao Gestor Financeiro Pro - Hannah 3.0</p>
+        </div>
+
+        <div class="content">
+            <!-- SEÇÃO 1: ENTRADA DE CASAS -->
+            <div class="section">
+                <div class="section-title">📍 Adicionar Casas</div>
+
+                <div class="input-group">
+                    <label>ID da Casa</label>
+                    <input type="number" id="inputId" placeholder="Ex: 1" min="1">
+                </div>
+
+                <div class="input-group">
+                    <label>Endereço</label>
+                    <input type="text" id="inputEndereco" placeholder="Ex: Rua A, 100 - Palm Bay">
+                </div>
+
+                <div class="input-group">
+                    <label>Latitude</label>
+                    <input type="number" id="inputLat" placeholder="Ex: 28.0436" step="0.0001">
+                </div>
+
+                <div class="input-group">
+                    <label>Longitude</label>
+                    <input type="number" id="inputLon" placeholder="Ex: -80.3853" step="0.0001">
+                </div>
+
+                <div class="input-group">
+                    <label>Tipo de Limpeza</label>
+                    <select id="inputTipo">
+                        <option value="">Selecione...</option>
+                        <option value="Regular">Limpeza Regular (2h40min)</option>
+                        <option value="Deep">Deep Cleaning (4h30min)</option>
+                    </select>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" onclick="adicionarCasa()">➕ Adicionar Casa</button>
+                    <button class="btn-secondary" onclick="limparFormulario()">🔄 Limpar</button>
+                </div>
+
+                <div style="margin-top: 20px;">
+                    <div class="section-title">📋 Casas Adicionadas</div>
+                    <table id="casasTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Endereço</th>
+                                <th>Tipo</th>
+                                <th>Ação</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                    <div id="emptyState" class="empty-state">
+                        <p>Nenhuma casa adicionada ainda</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEÇÃO 2: CONTROLES -->
+            <div class="section">
+                <div class="section-title">⚙️ Configurações</div>
+
+                <div class="input-group">
+                    <label>Tempo Limpeza Regular (min)</label>
+                    <input type="number" id="configTempoRegular" value="160" min="30" max="300">
+                </div>
+
+                <div class="input-group">
+                    <label>Tempo Deep Cleaning (min)</label>
+                    <input type="number" id="configTempoDeep" value="270" min="30" max="500">
+                </div>
+
+                <div class="input-group">
+                    <label>Intervalo Mínimo (min)</label>
+                    <input type="number" id="configIntervalo" value="160" min="30" max="300">
+                </div>
+
+                <div class="input-group">
+                    <label>Máx Deep/Carro</label>
+                    <input type="number" id="configMaxDeep" value="2" min="1" max="5">
+                </div>
+
+                <div class="input-group">
+                    <label>Máx Regular/Carro</label>
+                    <input type="number" id="configMaxRegular" value="4" min="1" max="10">
+                </div>
+
+                <div class="input-group">
+                    <label>Número de Carros</label>
+                    <input type="number" id="configNumCarros" value="3" min="1" max="10">
+                </div>
+
+                <div class="input-group">
+                    <label>Horários (separados por vírgula)</label>
+                    <input type="text" id="configHorarios" value="08:00, 10:40, 13:20, 16:00">
+                </div>
+
+                <button class="btn-primary" onclick="executarAgendador()">🚀 Executar Agendador</button>
+
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #DDD;">
+                    <div class="section-title">📊 Ações Rápidas</div>
+                    <button class="btn-secondary" onclick="adicionarExemplos()" style="width: 100%; margin-bottom: 10px;">📌 Carregar Exemplo</button>
+                    <button class="btn-danger" onclick="limparTudo()" style="width: 100%;">🗑️ Limpar Tudo</button>
+                </div>
+            </div>
+
+            <!-- SEÇÃO 3: RESULTADOS -->
+            <div class="section result-section" id="resultSection" style="display: none;">
+                <div class="section-title">✅ Schedule Otimizado</div>
+
+                <div class="stats" id="statsContainer"></div>
+
+                <div id="scheduleContainer"></div>
+
+                <div class="validation" id="validationContainer"></div>
+
+                <div class="export-box">
+                    <div style="font-size: 12px; color: #667eea; font-weight: 600; margin-bottom: 10px;">📋 Exportar para JSON</div>
+                    <button class="btn-secondary" onclick="copiarJSON()" style="width: 100%;">📋 Copiar JSON</button>
+                    <button class="btn-secondary" onclick="downloadJSON()" style="width: 100%; margin-top: 8px;">⬇️ Download JSON</button>
+                    <div class="json-output" id="jsonOutput"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let casas = [];
+        let resultado = null;
+
+        function adicionarCasa() {
+            const id = parseInt(document.getElementById('inputId').value);
+            const endereco = document.getElementById('inputEndereco').value;
+            const lat = parseFloat(document.getElementById('inputLat').value);
+            const lon = parseFloat(document.getElementById('inputLon').value);
+            const tipo = document.getElementById('inputTipo').value;
+
+            if (!id || !endereco || !lat || !lon || !tipo) {
+                alert('Preencha todos os campos!');
+                return;
+            }
+
+            casas.push({ id, endereco, lat, lon, tipo });
+            atualizarTabelaCasas();
+            limparFormulario();
+        }
+
+        function limparFormulario() {
+            document.getElementById('inputId').value = '';
+            document.getElementById('inputEndereco').value = '';
+            document.getElementById('inputLat').value = '';
+            document.getElementById('inputLon').value = '';
+            document.getElementById('inputTipo').value = '';
+            document.getElementById('inputId').focus();
+        }
+
+        function removerCasa(id) {
+            casas = casas.filter(c => c.id !== id);
+            atualizarTabelaCasas();
+        }
+
+        function atualizarTabelaCasas() {
+            const tbody = document.querySelector('#casasTable tbody');
+            const emptyState = document.getElementById('emptyState');
+
+            tbody.innerHTML = '';
+
+            if (casas.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            casas.forEach(casa => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${casa.id}</td>
+                    <td>${casa.endereco}</td>
+                    <td><span class="type ${casa.tipo.toLowerCase()}">${casa.tipo}</span></td>
+                    <td><button class="btn-danger" onclick="removerCasa(${casa.id})" style="padding: 5px 10px; font-size: 12px;">❌</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function adicionarExemplos() {
+            casas = [
+                { id: 1, endereco: 'Rua A, 100 - Palm Bay', lat: 28.0436, lon: -80.3853, tipo: 'Regular' },
+                { id: 2, endereco: 'Rua B, 200 - Palm Bay', lat: 28.0450, lon: -80.3850, tipo: 'Regular' },
+                { id: 3, endereco: 'Rua C, 300 - Melbourne', lat: 28.0600, lon: -80.3900, tipo: 'Deep' },
+                { id: 4, endereco: 'Rua D, 400 - Palm Bay', lat: 28.0440, lon: -80.3860, tipo: 'Regular' },
+                { id: 5, endereco: 'Rua E, 500 - Brevard', lat: 28.0700, lon: -80.4000, tipo: 'Regular' },
+                { id: 6, endereco: 'Rua F, 600 - Palm Bay', lat: 28.0445, lon: -80.3855, tipo: 'Deep' },
+                { id: 7, endereco: 'Rua G, 700 - Melbourne', lat: 28.0650, lon: -80.3950, tipo: 'Regular' },
+                { id: 8, endereco: 'Rua H, 800 - Palm Bay', lat: 28.0435, lon: -80.3860, tipo: 'Regular' },
+            ];
+            atualizarTabelaCasas();
+        }
+
+        function limparTudo() {
+            if (confirm('Deseja limpar todas as casas?')) {
+                casas = [];
+                atualizarTabelaCasas();
+                document.getElementById('resultSection').style.display = 'none';
+            }
+        }
+
+        function calcularDistancia(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = ((lat2 - lat1) * Math.PI) / 180;
+            const dLon = ((lon2 - lon1) * Math.PI) / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        function executarAgendador() {
+            if (casas.length === 0) {
+                alert('Adicione pelo menos uma casa!');
+                return;
+            }
+
+            const config = {
+                tempoRegular: parseInt(document.getElementById('configTempoRegular').value),
+                tempoDeep: parseInt(document.getElementById('configTempoDeep').value),
+                intervaloMinimo: parseInt(document.getElementById('configIntervalo').value),
+                maxDeepPorCarro: parseInt(document.getElementById('configMaxDeep').value),
+                maxRegularPorCarro: parseInt(document.getElementById('configMaxRegular').value),
+                numCarros: parseInt(document.getElementById('configNumCarros').value),
+                horarios: document.getElementById('configHorarios').value.split(',').map(h => h.trim()),
+                coordPalmBay: { lat: 28.0436, lon: -80.3853 }
+            };
+
+            // Ordenar casas
+            const casasOrdenadas = [...casas].sort((a, b) => {
+                const distA = calcularDistancia(a.lat, a.lon, config.coordPalmBay.lat, config.coordPalmBay.lon);
+                const distB = calcularDistancia(b.lat, b.lon, config.coordPalmBay.lat, config.coordPalmBay.lon);
+
+                if (a.tipo !== b.tipo) {
+                    return a.tipo === 'Deep' ? -1 : 1;
+                }
+                return distA - distB;
+            });
+
+            // Criar carros
+            const carros = Array(config.numCarros).fill().map((_, i) => ({
+                id: i + 1,
+                agendamentos: [],
+                tempoTotal: 0,
+                deepCount: 0,
+                regularCount: 0
+            }));
+
+            // Alocar casas
+            for (const casa of casasOrdenadas) {
+                let melhorCarro = null;
+                let menorTrabalho = Infinity;
+
+                for (const carro of carros) {
+                    if (casa.tipo === 'Deep' && carro.deepCount >= config.maxDeepPorCarro) continue;
+                    if (casa.tipo === 'Regular' && carro.regularCount >= config.maxRegularPorCarro) continue;
+
+                    const horariosUnicos = new Set(carro.agendamentos.map(a => a.horario)).size;
+                    if (horariosUnicos >= 3) continue;
+
+                    if (carro.tempoTotal < menorTrabalho) {
+                        menorTrabalho = carro.tempoTotal;
+                        melhorCarro = carro;
+                    }
+                }
+
+                if (!melhorCarro) continue;
+
+                const tempo = casa.tipo === 'Deep' ? config.tempoDeep : config.tempoRegular;
+                let horario = config.horarios[0];
+
+                if (melhorCarro.agendamentos.length > 0) {
+                    const ultimoHorario = melhorCarro.agendamentos[melhorCarro.agendamentos.length - 1].horario;
+                    for (const h of config.horarios) {
+                        if (h > ultimoHorario) {
+                            horario = h;
+                            break;
+                        }
+                    }
+                }
+
+                melhorCarro.agendamentos.push({
+                    id: casa.id,
+                    endereco: casa.endereco,
+                    tipo: casa.tipo,
+                    horario: horario,
+                    tempo: tempo,
+                    distancia: calcularDistancia(casa.lat, casa.lon, config.coordPalmBay.lat, config.coordPalmBay.lon)
+                });
+
+                melhorCarro.tempoTotal += tempo;
+                if (casa.tipo === 'Deep') {
+                    melhorCarro.deepCount++;
+                } else {
+                    melhorCarro.regularCount++;
+                }
+            }
+
+            resultado = { carros, config };
+            exibirResultado();
+        }
+
+        function exibirResultado() {
+            document.getElementById('resultSection').style.display = 'block';
+
+            // Stats
+            let statsHTML = '';
+            for (const carro of resultado.carros) {
+                const horas = Math.floor(carro.tempoTotal / 60);
+                const mins = carro.tempoTotal % 60;
+                statsHTML += `
+                    <div class="stat">
+                        <div class="stat-value">🚗 #${carro.id}</div>
+                        <div class="stat-label">${horas}h${mins.toString().padStart(2, '0')} | ${carro.agendamentos.length} casas</div>
+                    </div>
+                `;
+            }
+            document.getElementById('statsContainer').innerHTML = statsHTML;
+
+            // Schedule
+            let scheduleHTML = '';
+            for (const carro of resultado.carros) {
+                scheduleHTML += `<div class="schedule-box"><h4>🚗 Carro ${carro.id}</h4>`;
+                for (const ag of carro.agendamentos) {
+                    scheduleHTML += `
+                        <div class="schedule-item">
+                            <div class="time">${ag.horario}</div>
+                            <div class="type ${ag.tipo.toLowerCase()}">${ag.tipo}</div>
+                            <div class="address">${ag.endereco}</div>
+                            <div class="distance">${ag.distancia.toFixed(1)}km</div>
+                        </div>
+                    `;
+                }
+                scheduleHTML += '</div>';
+            }
+            document.getElementById('scheduleContainer').innerHTML = scheduleHTML;
+
+            // Validação
+            let validationHTML = '';
+            let allValid = true;
+            for (const carro of resultado.carros) {
+                const horariosUnicos = new Set(carro.agendamentos.map(a => a.horario)).size;
+                const deepOk = carro.deepCount <= resultado.config.maxDeepPorCarro;
+                const regularOk = carro.regularCount <= resultado.config.maxRegularPorCarro;
+                const horariosOk = horariosUnicos <= 3;
+
+                const deepStatus = deepOk ? '<span class="check-icon success">✅</span>' : '<span class="check-icon error">❌</span>';
+                const regularStatus = regularOk ? '<span class="check-icon success">✅</span>' : '<span class="check-icon error">❌</span>';
+                const horariosStatus = horariosOk ? '<span class="check-icon success">✅</span>' : '<span class="check-icon error">❌</span>';
+
+                validationHTML += `
+                    <div class="validation-item">${horariosStatus} Carro ${carro.id}: ${horariosUnicos} horários (máx 3)</div>
+                    <div class="validation-item">${deepStatus} Carro ${carro.id}: ${carro.deepCount} deep (máx ${resultado.config.maxDeepPorCarro})</div>
+                    <div class="validation-item">${regularStatus} Carro ${carro.id}: ${carro.regularCount} regular (máx ${resultado.config.maxRegularPorCarro})</div>
+                `;
+
+                if (!(deepOk && regularOk && horariosOk)) allValid = false;
+            }
+
+            const distStatus = resultado.carros.every(c => c.agendamentos.every(a => a.distancia < 10)) ?
+                '<span class="check-icon success">✅</span>' : '<span class="check-icon warning">⚠️</span>';
+            validationHTML += `<div class="validation-item">${distStatus} Casas próximas de Palm Bay (&lt;10km)</div>`;
+
+            document.getElementById('validationContainer').innerHTML = validationHTML;
+
+            // JSON
+            const json = JSON.stringify(resultado.carros.map(c => ({
+                carro: c.id,
+                agendamentos: c.agendamentos,
+                tempoTotal: `${Math.floor(c.tempoTotal / 60)}h${(c.tempoTotal % 60).toString().padStart(2, '0')}`
+            })), null, 2);
+            document.getElementById('jsonOutput').textContent = json;
+        }
+
+        function copiarJSON() {
+            const json = document.getElementById('jsonOutput').textContent;
+            navigator.clipboard.writeText(json).then(() => {
+                alert('✅ JSON copiado para a área de transferência!');
+            });
+        }
+
+        function downloadJSON() {
+            const json = document.getElementById('jsonOutput').textContent;
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'agendamento-limpeza.json';
+            a.click();
+        }
+    </script>
+</body>
+</html>

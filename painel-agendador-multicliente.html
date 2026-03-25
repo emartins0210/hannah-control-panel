@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Agendador - Multi-Cliente</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background: #f5f5f5; color: #333; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+    header { background: #2c3e50; color: white; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+    header h1 { margin-bottom: 5px; }
+    .content { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+    .panel { background: white; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .panel h2 { margin-bottom: 15px; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+    .form-group { margin-bottom: 12px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 12px; }
+    input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 3px; font-size: 12px; }
+    input:focus, select:focus { outline: none; border-color: #3498db; }
+    button { background: #3498db; color: white; padding: 10px 15px; border: none; border-radius: 3px; cursor: pointer; font-size: 12px; margin-top: 5px; }
+    button:hover { background: #2980b9; }
+    button.danger { background: #e74c3c; }
+    button.danger:hover { background: #c0392b; }
+    button.success { background: #27ae60; }
+    button.success:hover { background: #229954; }
+    .table-container { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background: #34495e; color: white; }
+    tr:hover { background: #f9f9f9; }
+    .status { padding: 3px 8px; border-radius: 3px; font-size: 11px; }
+    .status.ativo { background: #d5f4e6; color: #27ae60; }
+    .status.inativo { background: #fadbd8; color: #e74c3c; }
+    .constraint { display: flex; align-items: center; gap: 5px; margin: 5px 0; font-size: 12px; }
+    .check { color: #27ae60; font-weight: bold; }
+    .cross { color: #e74c3c; font-weight: bold; }
+    .info-box { background: #ecf0f1; padding: 10px; border-radius: 3px; margin: 10px 0; font-size: 12px; }
+    .schedule-card { background: #f8f9fa; border-left: 4px solid #3498db; padding: 10px; margin: 10px 0; }
+    @media (max-width: 768px) { .content { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🏠 Painel Agendador Inteligente - Multi-Cliente</h1>
+      <p>Gerencie agendamentos de limpeza para múltiplos clientes</p>
+    </header>
+
+    <div class="content">
+      <div class="panel">
+        <h2>Seleção de Cliente</h2>
+        <div class="form-group">
+          <label>Selecione ou Crie Cliente</label>
+          <select id="clienteSelect">
+            <option value="">-- Carregando clientes --</option>
+          </select>
+        </div>
+
+        <button class="success" onclick="criarNovoCliente()">+ Novo Cliente</button>
+
+        <div id="formaNovoCliente" style="display:none; margin-top:15px;">
+          <h3 style="font-size: 14px; margin-bottom: 10px;">Criar Novo Cliente</h3>
+          <div class="form-group">
+            <label>Nome do Cliente</label>
+            <input type="text" id="newClienteNome" placeholder="Ex: Fabíola Services">
+          </div>
+          <div class="form-group">
+            <label>Telefone</label>
+            <input type="tel" id="newClienteTelefone" placeholder="(XX) XXXXX-XXXX">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="newClienteEmail" placeholder="email@example.com">
+          </div>
+          <div class="form-group">
+            <label>Endereço</label>
+            <input type="text" id="newClienteEndereco" placeholder="Rua, número">
+          </div>
+          <div class="form-group">
+            <label>Cidade</label>
+            <input type="text" id="newClienteCidade" placeholder="Palm Bay">
+          </div>
+          <button class="success" onclick="salvarNovoCliente()">Salvar Cliente</button>
+          <button onclick="cancelarNovoCliente()">Cancelar</button>
+        </div>
+
+        <hr style="margin: 20px 0;">
+
+        <h2>Adicionar Casa</h2>
+        <div id="casasForm">
+          <div class="form-group">
+            <label>Endereço</label>
+            <input type="text" id="endereco" placeholder="Rua, número">
+          </div>
+          <div class="form-group">
+            <label>Latitude</label>
+            <input type="number" id="latitude" placeholder="Ex: 28.2634" step="0.0001">
+          </div>
+          <div class="form-group">
+            <label>Longitude</label>
+            <input type="number" id="longitude" placeholder="Ex: -80.7282" step="0.0001">
+          </div>
+          <div class="form-group">
+            <label>Tipo de Limpeza</label>
+            <select id="tipoLimpeza">
+              <option value="regular">Limpeza Regular (2:40)</option>
+              <option value="deepclean">Deep Clean (4:30)</option>
+            </select>
+          </div>
+          <button onclick="adicionarCasa()">Adicionar Casa</button>
+        </div>
+
+        <hr style="margin: 20px 0;">
+
+        <h2>Configurações</h2>
+        <div class="form-group">
+          <label>Número de Carros</label>
+          <input type="number" id="numCarros" value="3" min="1" max="10">
+        </div>
+        <div class="form-group">
+          <label>Máx. Horários Repetidos</label>
+          <input type="number" id="maxHorarios" value="3" min="1">
+        </div>
+        <div class="form-group">
+          <label>Máx. Casas por Horário</label>
+          <input type="number" id="maxCasasHorario" value="4" min="1">
+        </div>
+        <button class="success" onclick="atualizarConfiguracao()">Salvar Configuração</button>
+      </div>
+
+      <div class="panel">
+        <h2>Casas Adicionadas</h2>
+        <div id="casasAdicionadas" class="table-container"></div>
+
+        <h2 style="margin-top: 20px;">Executar Agendamento</h2>
+        <button class="success" onclick="executarAgendador()" style="width: 100%; padding: 12px; font-size: 14px;">🚀 Executar Agendamento</button>
+
+        <h2 style="margin-top: 20px;">Resultado do Agendamento</h2>
+        <div id="resultadoAgendamento"></div>
+
+        <h2 style="margin-top: 20px;">Validação de Restrições</h2>
+        <div id="validacaoRestrições"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api/multicliente';
+    let clienteAtualId = null;
+    let casasAtual = [];
+
+    async function carregarClientes() {
+      try {
+        const response = await fetch(`${API_URL}/clientes`);
+        const data = await response.json();
+        const select = document.getElementById('clienteSelect');
+        select.innerHTML = '<option value="">Selecione um cliente</option>';
+        data.clientes.forEach(cliente => {
+          const option = document.createElement('option');
+          option.value = cliente.id;
+          option.textContent = `${cliente.nome} (${cliente.cidade})`;
+          select.appendChild(option);
+        });
+      } catch (erro) {
+        console.error('Erro ao carregar clientes:', erro);
+        alert('Erro ao carregar clientes');
+      }
+    }
+
+    document.getElementById('clienteSelect').addEventListener('change', async (e) => {
+      clienteAtualId = e.target.value;
+      if (clienteAtualId) {
+        await carregarCasas();
+      }
+    });
+
+    function criarNovoCliente() {
+      document.getElementById('formaNovoCliente').style.display = 'block';
+    }
+
+    function cancelarNovoCliente() {
+      document.getElementById('formaNovoCliente').style.display = 'none';
+    }
+
+    async function salvarNovoCliente() {
+      const clienteData = {
+        nome: document.getElementById('newClienteNome').value,
+        telefone: document.getElementById('newClienteTelefone').value,
+        email: document.getElementById('newClienteEmail').value,
+        endereco: document.getElementById('newClienteEndereco').value,
+        cidade: document.getElementById('newClienteCidade').value
+      };
+
+      if (!clienteData.nome || !clienteData.telefone || !clienteData.email) {
+        alert('Preenchha todos os campos obrigatórios');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/cliente`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(clienteData)
+        });
+        const data = await response.json();
+        if (data.sucesso) {
+          alert('Cliente criado com sucesso!');
+          document.getElementById('formaNovoCliente').style.display = 'none';
+          document.getElementById('newClienteNome').value = '';
+          document.getElementById('newClienteTelefone').value = '';
+          document.getElementById('newClienteEmail').value = '';
+          document.getElementById('newClienteEndereco').value = '';
+          document.getElementById('newClienteCidade').value = '';
+          await carregarClientes();
+        }
+      } catch (erro) {
+        alert('Erro ao criar cliente: ' + erro.message);
+      }
+    }
+
+    async function adicionarCasa() {
+      if (!clienteAtualId) {
+        alert('Selecione um cliente primeiro');
+        return;
+      }
+
+      const casaData = {
+        clienteId: clienteAtualId,
+        endereco: document.getElementById('endereco').value,
+        lat: document.getElementById('latitude').value,
+        lon: document.getElementById('longitude').value,
+        tipo: document.getElementById('tipoLimpeza').value
+      };
+
+      if (!casaData.endereco || !casaData.lat || !casaData.lon) {
+        alert('Preenchha todos os campos');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/casa`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(casaData)
+        });
+        const data = await response.json();
+        if (data.sucesso) {
+          alert('Casa adicionada!');
+          document.getElementById('endereco').value = '';
+          document.getElementById('latitude').value = '';
+          document.getElementById('longitude').value = '';
+          await carregarCasas();
+        }
+      } catch (erro) {
+        alert('Erro: ' + erro.message);
+      }
+    }
+
+    async function carregarCasas() {
+      try {
+        const response = await fetch(`${API_URL}/casas/${clienteAtualId}`);
+        const data = await response.json();
+        casasAtual = data.casas;
+        exibirCasas();
+      } catch (erro) {
+        console.error('Erro ao carregar casas:', erro);
+      }
+    }
+
+    function exibirCasas() {
+      const container = document.getElementById('casasAdicionadas');
+      if (casasAtual.length === 0) {
+        container.innerHTML = '<p style="color: #7f8c8d;">Nenhuma casa adicionada</p>';
+        return;
+      }
+
+      let html = `<table>
+        <tr>
+          <th>Endereço</th>
+          <th>Tipo</th>
+          <th>Distância (km)</th>
+          <th>Lat/Long</th>
+        </tr>`;
+
+      casasAtual.forEach(casa => {
+        html += `<tr>
+          <td>${casa.endereco}</td>
+          <td>${casa.tipo === 'deepclean' ? '🧹 Deep Clean' : '🧹 Regular'}</td>
+          <td>${casa.distancia.toFixed(2)}</td>
+          <td>${casa.lat.toFixed(4)}, ${casa.lon.toFixed(4)}</td>
+        </tr>`;
+      });
+
+      html += '</table>';
+      container.innerHTML = html;
+    }
+
+    async function executarAgendador() {
+      if (!clienteAtualId) {
+        alert('Selecione um cliente');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/agendar`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ clienteId: clienteAtualId })
+        });
+        const data = await response.json();
+        
+        if (data.sucesso) {
+          exibirResultado(data.agendamento);
+          validarRestrições(data.agendamento);
+        } else {
+          alert('Erro: ' + data.erro);
+        }
+      } catch (erro) {
+        alert('Erro na execução: ' + erro.message);
+      }
+    }
+
+    function exibirResultado(agendamento) {
+      let html = '';
+      
+      Object.entries(agendamento.carros).forEach(([numCarro, carro]) => {
+        html += `<div class="schedule-card">
+          <h4>🚗 Carro ${numCarro}</h4>
+          <p><strong>Carga Horária:</strong> ${carro.trabalho.toFixed(2)}h</p>
+          <p><strong>Deep Cleanings:</strong> ${carro.deepclean}/2</p>
+          <ul style="margin: 10px 0;">`;
+
+        carro.agendas.forEach(agenda => {
+          html += `<li>${agenda.horario} - ${agenda.endereco} (${agenda.tipo})</li>`;
+        });
+
+        html += '</ul></div>';
+      });
+
+      document.getElementById('resultadoAgendamento').innerHTML = html;
+    }
+
+    function validarRestrições(agendamento) {
+      let html = '<div>';
+      let todasValid = true;
+
+      Object.entries(agendamento.carros).forEach(([numCarro, carro]) => {
+        html += `<h4>Carro ${numCarro}:</h4>`;
+
+        const deepCleanOk = carro.deepclean <= 2;
+        html += `<div class="constraint">
+          <span class="${deepCleanOk ? 'check' : 'cross'}">${deepCleanOk ? '✓' : '✗'}</span>
+          Deep Cleanings: ${carro.deepclean}/2
+        </div>`;
+
+        const agendaCount = carro.agendas.length;
+        const agendaOk = agendaCount <= 4;
+        html += `<div class="constraint">
+          <span class="${agendaOk ? 'check' : 'cross'}">${agendaOk ? '✓' : '✗'}</span>
+          Total de Agendas: ${agendaCount}/4
+        </div>`;
+
+        if (!deepCleanOk || !agendaOk) todasValid = false;
+      });
+
+      html += `<div class="info-box" style="margin-top: 15px; background: ${todasValid ? '#d5f4e6' : '#fadbd8'};">
+        ${todasValid ? '✓ Todas as restrições validadas!' : '✗ Algumas restrições não foram atendidas'}
+      </div></div>`;
+
+      document.getElementById('validacaoRestrições').innerHTML = html;
+    }
+
+    async function atualizarConfiguracao() {
+      if (!clienteAtualId) {
+        alert('Selecione um cliente');
+        return;
+      }
+
+      const config = {
+        numCarros: parseInt(document.getElementById('numCarros').value),
+        maxHorariosRepetidos: parseInt(document.getElementById('maxHorarios').value),
+        maxCasasHorario: parseInt(document.getElementById('maxCasasHorario').value)
+      };
+
+      try {
+        const response = await fetch(`${API_URL}/config/${clienteAtualId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(config)
+        });
+        const data = await response.json();
+        if (data.sucesso) {
+          alert('Configuração atualizada!');
+        }
+      } catch (erro) {
+        alert('Erro: ' + erro.message);
+      }
+    }
+
+    carregarClientes();
+  </script>
+</body>
+</html>

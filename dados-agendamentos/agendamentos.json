@@ -1,0 +1,19 @@
+[
+  {
+    "id": "AGD-1774395964876",
+    "nomeCliente": "Maria Santos",
+    "emailCliente": "maria@example.com",
+    "telefoneCliente": "+5511988886666",
+    "latitude": -23.5505,
+    "longitude": -46.6333,
+    "tipoServico": "Limpeza Completa",
+    "dataAgendamento": "2026-03-26",
+    "horarioAgendamento": "14:00",
+    "descricao": "Apartamento 80m²",
+    "equipeSelecionada": "Equipe Centro",
+    "equipeId": 1,
+    "distancia": 0,
+    "status": "CONFIRMADO",
+    "criadoEm": "2026-03-24T23:46:04.876Z"
+  }
+]
