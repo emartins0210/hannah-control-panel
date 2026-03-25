@@ -44,27 +44,10 @@ function validateCriticalVars() {
   });
 
   if (missing.length > 0) {
-    console.error('\n');
-    console.error('╔════════════════════════════════════════════════════════╗');
-    console.error('║  ❌ FALHA CRÍTICA: Variáveis de Ambiente Faltando      ║');
-    console.error('╚════════════════════════════════════════════════════════╝');
-    console.error('\n🔴 As seguintes variáveis SÃO OBRIGATÓRIAS:\n');
-    
-    missing.forEach(varName => {
-      console.error(`   ❌ ${varName}`);
-    });
-
-    console.error('\n📋 Como corrigir:\n');
-    console.error('   1. Abra o arquivo .env na raiz do projeto');
-    console.error('   2. Localize cada variável listada acima');
-    console.error('   3. Substitua "ADICIONAR_AQUI_..." pela chave real');
-    console.error('\n📚 Onde obter as chaves:\n');
-    console.error('   • VAPI_API_KEY → https://dashboard.vapi.ai/settings');
-    console.error('   • WHATSAPP tokens → https://developers.facebook.com');
-    console.error('   • JWT_SECRET → Gere com: node -e "console.log(require(\'crypto\').randomBytes(32).toString(\'hex\'))"');
-    console.error('\n');
-    
-    process.exit(1);
+    console.warn('\n⚠️  Variáveis faltando: ' + missing.join(', '));
+    console.warn('   → Configure em Railway → Service → Variables');
+    console.warn('   → Servidor vai iniciar, mas algumas features estarão limitadas\n');
+    // Não encerra o processo — permite startup sem todas as vars
   }
 
   return {
