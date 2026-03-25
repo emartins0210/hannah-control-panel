@@ -1,55 +1,24 @@
 {
-  "name": "agendador-fabolaservices-multicliente",
-  "version": "2.0.0",
-  "description": "Sistema inteligente de agendamento de limpeza multi-cliente com equipes - Fabíola Services",
+  "name": "cleanai-saas",
+  "version": "1.0.0",
+  "description": "CleanAI SaaS — Multi-tenant AI Sales for Housecleaning Companies",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "auth": "node server-auth.js",
-    "auth-dev": "nodemon server-auth.js",
-    "importar": "node importar-clientes-excel.js",
-    "importar-custom": "node importar-clientes-excel.js",
-    "docker-build": "docker build -t agendador-fabolaservices .",
-    "docker-run": "docker run -p 3000:3000 -v $(pwd)/dados-clientes:/app/dados-clientes agendador-fabolaservices",
-    "docker-compose": "docker-compose up",
-    "test": "echo \"Tests pending\" && exit 0"
+    "setup": "node setup.js",
+    "start:fresh": "node setup.js && node server.js"
   },
-  "keywords": [
-    "agendamento",
-    "limpeza",
-    "multicliente",
-    "multi-equipe",
-    "inteligente",
-    "scheduler",
-    "fabiolservices"
-  ],
-  "author": "Fabíola Services",
-  "license": "MIT",
   "dependencies": {
-    "axios": "^1.13.6",
-    "body-parser": "^1.20.2",
-    "cors": "^2.8.5",
-    "dotenv": "^17.3.1",
     "express": "^4.18.2",
-    "jsonwebtoken": "^9.1.2",
-    "nodemailer": "^8.0.3",
-    "twilio": "^5.13.1",
-    "xlsx": "^0.18.5"
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "axios": "^1.6.0",
+    "dayjs": "^1.11.10",
+    "node-cron": "^3.0.3",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
-  },
-  "engines": {
-    "node": ">=16.0.0",
-    "npm": ">=8.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/fabolaservices/agendador-inteligente.git"
-  },
-  "bugs": {
-    "url": "https://github.com/fabolaservices/agendador-inteligente/issues"
-  },
-  "homepage": "https://github.com/fabolaservices/agendador-inteligente#readme"
+    "nodemon": "^3.0.2"
+  }
 }
