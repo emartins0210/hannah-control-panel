@@ -17,7 +17,7 @@ const { v4: uuidv4 } = require("uuid");
 const tenantDb = require("../modules/tenantDb");
 const leadDb   = require("../modules/leadDb");
 const vapi     = require("../modules/vapi");
-const { log }  = require("../modules/guard");
+const { log, normalizePhone }  = require("../modules/guard");
 
 /**
  * POST /api/webhook/:webhookKey
@@ -70,7 +70,7 @@ router.post("/:webhookKey", async (req, res) => {
     id: uuidv4(),
     tenantId: tenant.id,
     name: fullName,
-    phone,
+    phone: normalizePhone(phone),
     email: email || "",
     serviceType: serviceType || "General Cleaning",
     bedrooms: bedrooms || "",
