@@ -9,8 +9,9 @@
  *   TWILIO_ACCOUNT_SID
  *   TWILIO_AUTH_TOKEN
  *   TWILIO_WHATSAPP_NUMBER   → whatsapp:+14155238886 (sandbox) ou número aprovado
- *   FABIOLA_WHATSAPP         → +1XXXXXXXXXX
- *   FABIOLA_PHONE            → +1XXXXXXXXXX (para ligar)
+ *   FABIOLA_WHATSAPP         → +55XXXXXXXXXXX (para WhatsApp)
+ *   FABIOLA_PHONE            → +55XXXXXXXXXXX (para ligar)
+ *   EUGENIO_WHATSAPP         → +55XXXXXXXXXXX (recebe cópia de todas notificações WA)
  */
 
 const axios = require("axios");
@@ -131,6 +132,19 @@ Se ela disser que entendeu ou que vai resolver, agradeça e desligue.`
 
 // ── WhatsApp via Twilio ───────────────────────────────────
 
+async function sendWhatsAppToNumber(accountSid, authToken, from, toNumber, message) {
+  const to = toNumber.startsWith("whatsapp:") ? toNumber : `whatsapp:${toNumber}`;
+  const url  = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+  const body = new URLSearchParams({ From: from, To: to, Body: message });
+
+  const res = await axios.post(url, body.toString(), {
+    auth: { username: accountSid, password: authToken },
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  });
+
+  return res.data;
+}
+
 async function sendWhatsApp(message) {
   const accountSid = env("TWILIO_ACCOUNT_SID");
   const authToken  = env("TWILIO_AUTH_TOKEN");
@@ -142,23 +156,26 @@ async function sendWhatsApp(message) {
     return null;
   }
 
-  const to = fabiolaNum.startsWith("whatsapp:") ? fabiolaNum : `whatsapp:${fabiolaNum}`;
-
+  // Envia para Fabíola
   try {
-    const url  = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
-    const body = new URLSearchParams({ From: from, To: to, Body: message });
-
-    const res = await axios.post(url, body.toString(), {
-      auth: { username: accountSid, password: authToken },
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    });
-
-    log.info(`📲 WhatsApp sent to Fabíola — SID: ${res.data.sid}`);
-    return res.data;
+    const res = await sendWhatsAppToNumber(accountSid, authToken, from, fabiolaNum, message);
+    log.info(`📲 WhatsApp sent to Fabíola — SID: ${res.sid}`);
   } catch (err) {
-    log.error("WhatsApp failed:", err.response?.data || err.message);
-    return null;
+    log.error("WhatsApp to Fabíola failed:", err.response?.data || err.message);
   }
+
+  // Envia para Eugenio (se configurado)
+  const eugenioNum = env("EUGENIO_WHATSAPP");
+  if (eugenioNum) {
+    try {
+      const res = await sendWhatsAppToNumber(accountSid, authToken, from, eugenioNum, message);
+      log.info(`📲 WhatsApp sent to Eugenio — SID: ${res.sid}`);
+    } catch (err) {
+      log.error("WhatsApp to Eugenio failed:", err.response?.data || err.message);
+    }
+  }
+
+  return true;
 }
 
 // ── Mensagens em português por situação ──────────────────
