@@ -1,15 +1,14 @@
 /**
- * MODULE: BOOKING NOTIFICATIONS
- * 
+ * MODULE: BOOKING NOTIFICATIONS (Meta WhatsApp Cloud API)
+ *
  * Envia notificações WhatsApp quando:
  * - Cliente confirma um agendamento
  * - Cliente é marcado como "closed/booked"
- * 
- * Configuração no .env:
- *   TWILIO_ACCOUNT_SID
- *   TWILIO_AUTH_TOKEN
- *   TWILIO_WHATSAPP_NUMBER   → whatsapp:+14155238886 (sandbox)
- *   HANNAH_WHATSAPP_NOTIFY   → +5519994294406 (seu número)
+ *
+ * Configuração no Railway:
+ *   WHATSAPP_BUSINESS_TOKEN  → token Meta
+ *   WHATSAPP_PHONE_ID        → ID do número Meta
+ *   FABIOLA_WHATSAPP         → número da Fabíola
  */
 
 const axios = require("axios");
@@ -40,37 +39,36 @@ const { log, env, normalizePhone } = require("./guard");
  * @returns {Promise<boolean>} - true se enviado com sucesso
  */
 async function sendBookingNotification(clientInfo, bookingInfo = {}) {
-  const accountSid = env("TWILIO_ACCOUNT_SID");
-  const authToken  = env("TWILIO_AUTH_TOKEN");
-  const from       = env("TWILIO_WHATSAPP_NUMBER");
-  const yourNumber = env("HANNAH_WHATSAPP_NOTIFY");
+  const token      = env("WHATSAPP_BUSINESS_TOKEN");
+  const phoneId    = env("WHATSAPP_PHONE_ID");
+  const fabiolaNum = env("FABIOLA_WHATSAPP");
 
-  // Se não estiver configurado, apenas loga aviso
-  if (!accountSid || !authToken || !from || !yourNumber) {
-    log.warn("⚠️  Notificação WhatsApp não configurada — pulando");
-    log.warn(`   Faltam: ${!accountSid ? "TWILIO_ACCOUNT_SID " : ""}${!authToken ? "TWILIO_AUTH_TOKEN " : ""}${!from ? "TWILIO_WHATSAPP_NUMBER " : ""}${!yourNumber ? "HANNAH_WHATSAPP_NOTIFY " : ""}`);
+  if (!token || !phoneId || !fabiolaNum) {
+    log.warn("⚠️  Meta WhatsApp não configurado — pulando");
+    log.warn(`   Faltam: ${!token ? "WHATSAPP_BUSINESS_TOKEN " : ""}${!phoneId ? "WHATSAPP_PHONE_ID " : ""}${!fabiolaNum ? "FABIOLA_WHATSAPP " : ""}`);
     return false;
   }
 
   try {
     const message = buildBookingMessage(clientInfo, bookingInfo);
-    const to = yourNumber.startsWith("whatsapp:") ? yourNumber : `whatsapp:${yourNumber}`;
+    const to = fabiolaNum.replace(/\D/g, "");
+    const url = `https://graph.facebook.com/v18.0/${phoneId}/messages`;
 
-    const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
-    const body = new URLSearchParams({ 
-      From: from, 
-      To: to, 
-      Body: message 
+    log.info(`\n📱 Enviando notificação WhatsApp para Fabíola...`);
+
+    const res = await axios.post(url, {
+      messaging_product: "whatsapp",
+      to,
+      type: "text",
+      text: { body: message },
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
     });
 
-    log.info(`\n📱 Enviando notificação WhatsApp para ${yourNumber}...`);
-
-    const res = await axios.post(url, body.toString(), {
-      auth: { username: accountSid, password: authToken },
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    });
-
-    log.info(`✅ Notificação enviada! SID: ${res.data.sid}`);
+    log.info(`✅ Notificação enviada! ID: ${res.data.messages?.[0]?.id}`);
     return true;
 
   } catch (err) {

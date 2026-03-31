@@ -1,16 +1,15 @@
 /**
- * MODULE: TWILIO NOTIFICATIONS
- * 
+ * MODULE: WHATSAPP NOTIFICATIONS (Meta Cloud API)
+ *
  * Ordem de contato com a Fabíola:
  * 1. SEMPRE tenta ligar primeiro (via Vapi em português)
  * 2. Se não atender ou em casos não urgentes → WhatsApp
- * 
+ *
  * Variáveis no Railway:
- *   TWILIO_ACCOUNT_SID
- *   TWILIO_AUTH_TOKEN
- *   TWILIO_WHATSAPP_NUMBER   → whatsapp:+14155238886 (sandbox) ou número aprovado
- *   FABIOLA_WHATSAPP         → +55XXXXXXXXXXX (para WhatsApp)
- *   FABIOLA_PHONE            → +55XXXXXXXXXXX (para ligar)
+ *   WHATSAPP_BUSINESS_TOKEN  → token de acesso permanente do Meta
+ *   WHATSAPP_PHONE_ID        → ID do número no Meta Business Manager
+ *   FABIOLA_WHATSAPP         → +1XXXXXXXXXX (para WhatsApp)
+ *   FABIOLA_PHONE            → +1XXXXXXXXXX (para ligar)
  *   EUGENIO_WHATSAPP         → +55XXXXXXXXXXX (recebe cópia de todas notificações WA)
  */
 
@@ -130,36 +129,42 @@ Se ela disser que entendeu ou que vai resolver, agradeça e desligue.`
   }
 }
 
-// ── WhatsApp via Twilio ───────────────────────────────────
+// ── WhatsApp via Meta Cloud API ───────────────────────────
 
-async function sendWhatsAppToNumber(accountSid, authToken, from, toNumber, message) {
-  const to = toNumber.startsWith("whatsapp:") ? toNumber : `whatsapp:${toNumber}`;
-  const url  = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
-  const body = new URLSearchParams({ From: from, To: to, Body: message });
+async function sendWhatsAppToNumber(token, phoneId, toNumber, message) {
+  // Meta API expects E.164 digits only (no + or spaces)
+  const to = toNumber.replace(/\D/g, "");
+  const url = `https://graph.facebook.com/v18.0/${phoneId}/messages`;
 
-  const res = await axios.post(url, body.toString(), {
-    auth: { username: accountSid, password: authToken },
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  const res = await axios.post(url, {
+    messaging_product: "whatsapp",
+    to,
+    type: "text",
+    text: { body: message },
+  }, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
   });
 
   return res.data;
 }
 
 async function sendWhatsApp(message) {
-  const accountSid = env("TWILIO_ACCOUNT_SID");
-  const authToken  = env("TWILIO_AUTH_TOKEN");
-  const from       = env("TWILIO_WHATSAPP_NUMBER");
+  const token      = env("WHATSAPP_BUSINESS_TOKEN");
+  const phoneId    = env("WHATSAPP_PHONE_ID");
   const fabiolaNum = env("FABIOLA_WHATSAPP");
 
-  if (!accountSid || !authToken || !from || !fabiolaNum) {
-    log.warn("⚠️  Twilio WhatsApp not configured — skipping");
+  if (!token || !phoneId || !fabiolaNum) {
+    log.warn("⚠️  Meta WhatsApp not configured — skipping");
     return null;
   }
 
   // Envia para Fabíola
   try {
-    const res = await sendWhatsAppToNumber(accountSid, authToken, from, fabiolaNum, message);
-    log.info(`📲 WhatsApp sent to Fabíola — SID: ${res.sid}`);
+    const res = await sendWhatsAppToNumber(token, phoneId, fabiolaNum, message);
+    log.info(`📲 WhatsApp sent to Fabíola — ID: ${res.messages?.[0]?.id}`);
   } catch (err) {
     log.error("WhatsApp to Fabíola failed:", err.response?.data || err.message);
   }
@@ -168,8 +173,8 @@ async function sendWhatsApp(message) {
   const eugenioNum = env("EUGENIO_WHATSAPP");
   if (eugenioNum) {
     try {
-      const res = await sendWhatsAppToNumber(accountSid, authToken, from, eugenioNum, message);
-      log.info(`📲 WhatsApp sent to Eugenio — SID: ${res.sid}`);
+      const res = await sendWhatsAppToNumber(token, phoneId, eugenioNum, message);
+      log.info(`📲 WhatsApp sent to Eugenio — ID: ${res.messages?.[0]?.id}`);
     } catch (err) {
       log.error("WhatsApp to Eugenio failed:", err.response?.data || err.message);
     }
