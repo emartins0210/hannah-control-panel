@@ -85,7 +85,7 @@ async function processLead(leadgenId, formId) {
   for (const f of response.data.field_data || []) {
     fields[(f.name || "").toLowerCase().replace(/[^a-z0-9]/g, "_")] = f.values?.[0] || "";
   }
-  const name  = fields.full_name || fields.name || fields.first_name || "Lead Facebook";
+  const name  = fields.full_name || fields.name || fields.first_name || "";
   const phone = fields.phone_number || fields.phone || "";
   const email = fields.email || "";
   const city  = fields.city || "Melbourne FL";
@@ -97,7 +97,7 @@ async function createLeadDirect(name, phone, email, city, source, formId, leadge
   const tenant = tenantDb.getByWebhookKey(TENANT_KEY);
   if (!tenant) throw new Error("Tenant nao encontrado");
   const lead = leadDb.create({
-    tenantId: tenant.id, name: name || "Lead Facebook", phone: normalizePhone(phone),
+    tenantId: tenant.id, name: name || "", phone: normalizePhone(phone),
     email: email || "", city: city || "Melbourne FL", serviceType: "Residential Cleaning",
     source: source || "facebook_manual", utmSource: "facebook", utmMedium: "lead_ads",
     utmCampaign: formId || "", notes: leadgenId ? "FB Lead: " + leadgenId : "Manual",

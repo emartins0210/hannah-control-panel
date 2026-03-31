@@ -18,8 +18,11 @@ function headers() {
 // ── OUTBOUND PROMPT — SPIN Selling aprimorado ─────────────
 
 function buildSystemPrompt(tenant, lead) {
-  const fullName = lead.name || [lead.firstName, lead.lastName].filter(Boolean).join(" ") || "there";
-  const callName = fullName.trim().split(/\s+/)[0] || "there"; // first name only
+  // Sanitize name — filter out generic placeholders from Facebook/form defaults
+  const GENERIC = ["lead", "lead facebook", "facebook lead", "unknown", "customer", "client", "undefined", "null", "n/a", "test"];
+  const rawName = (lead.name || [lead.firstName, lead.lastName].filter(Boolean).join(" ") || "").trim();
+  const fullName = (rawName && !GENERIC.includes(rawName.toLowerCase())) ? rawName : "";
+  const callName = fullName ? (fullName.split(/\s+/)[0] || "") : "there"; // first name or "there"
   const beds     = parseInt(lead.bedrooms)  || 0;
   const baths    = parseInt(lead.bathrooms) || 0;
   const svc      = (lead.serviceType || "").toLowerCase();
@@ -48,15 +51,17 @@ function buildSystemPrompt(tenant, lead) {
   const daily      = Math.round((discounted || price || 195) / 30);
 
   // ── Source-based opener ────────────────────────────────
+  // Use name if we have it; if not, open without name (sounds natural, not robotic)
+  const greet = fullName ? "Hey " + callName + "!" : "Hey!";
   let opener = "";
   if (src.includes("facebook") || src.includes("fb") || src.includes("instagram")) {
-    opener = "Hey " + callName + "! This is " + tenant.aiName + " from " + tenant.companyName + ". You saw our ad on Facebook and I am calling to help you out. Did I catch you at an okay time?";
+    opener = greet + " This is " + tenant.aiName + " from " + tenant.companyName + ". You showed interest in our cleaning services through our ad — did I catch you at an okay time?";
   } else if (src.includes("google") || src.includes("gclid")) {
-    opener = "Hey " + callName + "! This is " + tenant.aiName + " from " + tenant.companyName + ". You searched for cleaning services online and filled out our form. Did I catch you at an okay time?";
+    opener = greet + " This is " + tenant.aiName + " from " + tenant.companyName + ". You searched for cleaning services online and filled out our form — did I catch you at an okay time?";
   } else if (src.includes("cold") || src.includes("prospect")) {
-    opener = "Hey " + callName + "! This is " + tenant.aiName + " from " + tenant.companyName + " — we are a local cleaning company in " + tenant.serviceAreas + ". I know this is unexpected, but it will be worth 60 seconds. Is now okay?";
+    opener = greet + " This is " + tenant.aiName + " from " + tenant.companyName + " — we are a local cleaning company in " + tenant.serviceAreas + ". I know this is unexpected, but it will be worth 60 seconds. Is now okay?";
   } else {
-    opener = "Hey " + callName + "! This is " + tenant.aiName + " from " + tenant.companyName + " — you just filled out a quote form on our site. Did I catch you at an okay time?";
+    opener = greet + " This is " + tenant.aiName + " from " + tenant.companyName + " — you just filled out a quote form on our site. Did I catch you at an okay time?";
   }
 
   const isColdCall = src.includes("cold") || src.includes("prospect");
@@ -448,9 +453,12 @@ async function makeCall(tenant, lead) {
   const personalizedPrompt = buildSystemPrompt(tenant, { ...lead, name: fullName });
 
   const knownService = lead.serviceType && lead.serviceType !== "General Cleaning";
-  const firstMessage = knownService
-    ? `Hey ${firstName(fullName)}! This is ${tenant.aiName} calling from ${tenant.companyName} — you just filled out a quote form on our site. Did I catch you at an okay time?`
-    : `Hey ${firstName(fullName)}! This is ${tenant.aiName} from ${tenant.companyName}. Is now a good time for a quick chat?`;
+  const isFromAd = lead.source === "facebook_lead_ads" || lead.source === "batch_call" || lead.utmSource === "facebook" || lead.utmSource === "google" || lead.utmSource === "batch";
+  const firstMessage = isFromAd
+    ? `Hey ${firstName(fullName)}! This is ${tenant.aiName} calling from ${tenant.companyName}. I saw you clicked on one of our ads and showed interest in our cleaning services — did I catch you at a good time?`
+    : knownService
+      ? `Hey ${firstName(fullName)}! This is ${tenant.aiName} calling from ${tenant.companyName} — you just filled out a quote form on our site. Did I catch you at an okay time?`
+      : `Hey ${firstName(fullName)}! This is ${tenant.aiName} from ${tenant.companyName}. Is now a good time for a quick chat?`;
 
   const payload = {
     phoneNumberId: tenant.vapiPhoneNumberId,
