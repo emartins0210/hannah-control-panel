@@ -48,6 +48,7 @@ app.use("/api/webhook",         require("./routes/webhook"));
 app.use("/api/vapi/webhook",    require("./routes/vapiWebhook"));
 app.use("/api/facebook/leads",  require("./routes/facebookLeads")); // Facebook Lead Ads -> Hannah
 app.use("/api/admin",           require("./routes/admin"));
+app.use("/api/batch-call",      require("./routes/batchCall"));   // Batch call — schedule Hannah calls
 app.use("/api/client",          require("./routes/clientAuth"));
 app.use("/api/lookup",          require("./routes/clientLookup"));
 
