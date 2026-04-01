@@ -37,7 +37,7 @@
    - Twilio roteia para VAPI
 
 2. **VAPI processa a chamada**
-   - Consulta Phone Number ID: `02ccb30c-ab0d-4982-87cd-3007e040ea4e`
+   - Consulta Phone Number ID: `e87df653-d8c7-45a9-a7bc-abe8e16969f8`
    - Procura assistente correspondente
    - Inicia webhook para Railway
 
@@ -72,7 +72,7 @@
   "tenants": [
     {
       "id": "hannah",
-      "vapiPhoneNumberId": "02ccb30c-ab0d-4982-87cd-3007e040ea4e"
+      "vapiPhoneNumberId": "e87df653-d8c7-45a9-a7bc-abe8e16969f8"
     }
   ]
 }
@@ -89,7 +89,7 @@
   "tenants": [
     {
       "id": "hannah",
-      "vapiPhoneNumberId": "02ccb30c-ab0d-4982-87cd-3007e040ea4e"
+      "vapiPhoneNumberId": "e87df653-d8c7-45a9-a7bc-abe8e16969f8"
     },
     {
       "id": "novo_assistente",
@@ -164,7 +164,7 @@ Authorization: Bearer {VAPI_SIGNATURE}
 **Body (Exemplo):**
 ```json
 {
-  "phoneNumberId": "02ccb30c-ab0d-4982-87cd-3007e040ea4e",
+  "phoneNumberId": "e87df653-d8c7-45a9-a7bc-abe8e16969f8",
   "status": "ringing|active|ended",
   "call": {
     "id": "call_id_único",
@@ -340,7 +340,7 @@ NODE_ENV=development npm start
 
 **Logs a Procurar:**
 ```
-[VAPI] Webhook received for phoneNumberId: 02ccb30c-ab0d-4982-87cd-3007e040ea4e
+[VAPI] Webhook received for phoneNumberId: e87df653-d8c7-45a9-a7bc-abe8e16969f8
 [VAPI] Routing to tenant: hannah
 [ASSISTANT] Starting call with Hannah AI
 ```

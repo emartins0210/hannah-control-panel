@@ -447,18 +447,22 @@ async function updateInboundAssistant(assistantId, tenant, clientData) {
 // ── Outbound call ─────────────────────────────────────────
 
 async function makeCall(tenant, lead) {
-  const fullName = lead.name ||
-    [lead.firstName, lead.lastName].filter(Boolean).join(" ") || "there";
+  // Sanitize name — same logic as buildSystemPrompt
+  const GENERIC = ["lead", "lead facebook", "facebook lead", "unknown", "customer", "client", "undefined", "null", "n/a", "test"];
+  const rawName = (lead.name || [lead.firstName, lead.lastName].filter(Boolean).join(" ") || "").trim();
+  const fullName = (rawName && !GENERIC.includes(rawName.toLowerCase())) ? rawName : "";
+  const callName = fullName ? (fullName.split(/\s+/)[0] || "there") : "there";
+  const greet = fullName ? `Hey ${callName}!` : "Hey!";
 
   const personalizedPrompt = buildSystemPrompt(tenant, { ...lead, name: fullName });
 
   const knownService = lead.serviceType && lead.serviceType !== "General Cleaning";
   const isFromAd = lead.source === "facebook_lead_ads" || lead.source === "batch_call" || lead.utmSource === "facebook" || lead.utmSource === "google" || lead.utmSource === "batch";
   const firstMessage = isFromAd
-    ? `Hey ${firstName(fullName)}! This is ${tenant.aiName} calling from ${tenant.companyName}. I saw you clicked on one of our ads and showed interest in our cleaning services — did I catch you at a good time?`
+    ? `${greet} This is ${tenant.aiName} calling from ${tenant.companyName}. I saw you clicked on one of our ads and showed interest in our cleaning services — did I catch you at a good time?`
     : knownService
-      ? `Hey ${firstName(fullName)}! This is ${tenant.aiName} calling from ${tenant.companyName} — you just filled out a quote form on our site. Did I catch you at an okay time?`
-      : `Hey ${firstName(fullName)}! This is ${tenant.aiName} from ${tenant.companyName}. Is now a good time for a quick chat?`;
+      ? `${greet} This is ${tenant.aiName} calling from ${tenant.companyName} — you just filled out a quote form on our site. Did I catch you at an okay time?`
+      : `${greet} This is ${tenant.aiName} from ${tenant.companyName}. Is now a good time for a quick chat?`;
 
   const payload = {
     phoneNumberId: tenant.vapiPhoneNumberId,

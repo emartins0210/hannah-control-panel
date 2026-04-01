@@ -6,7 +6,7 @@
 |------|-------|
 | 📱 **Novo Número** | **+1 321 384-9782** |
 | 🤖 **Assistente** | Hannah AI (Cleaning Services) |
-| 🔑 **VAPI Phone ID** | `02ccb30c-ab0d-4982-87cd-3007e040ea4e` |
+| 🔑 **VAPI Phone ID** | `e87df653-d8c7-45a9-a7bc-abe8e16969f8` |
 | 🌐 **Plataforma** | VAPI + Twilio + Railway |
 | ✅ **Status** | Ativo e Funcionando |
 | 📅 **Data** | 22 de Março de 2026 |
