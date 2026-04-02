@@ -13,6 +13,7 @@ const router   = express.Router();
 const tenantDb = require("../modules/tenantDb");
 const leadDb   = require("../modules/leadDb");
 const { notify, buildWhatsAppMessage } = require("../modules/twilioNotify");
+const { sendBookingEmails }            = require("../modules/emailNotify");
 const { log }  = require("../modules/guard");
 
 router.post("/:tenantId", (req, res) => {
@@ -155,6 +156,11 @@ function handleTranscript(tenant, callId, event) {
       // 3. Send SMS confirmation + schedule reminders
       const sms = require("../modules/smsReminders");
       sms.scheduleReminders(updatedLead, bookingInfo, tenant);
+
+      // 4. Send email: confirmation to client + notification to Fabíola
+      sendBookingEmails(updatedLead, bookingInfo, tenant)
+        .then(() => log.info(`📧 Booking emails dispatched for ${updatedLead.name}`))
+        .catch(err => log.warn("Email dispatch error:", err.message));
     }
   }
 

@@ -137,7 +137,7 @@ function buildSystemPrompt(tenant, lead) {
     "   For Deep Cleaning ONLY offer: 8:00 AM (needs a 4h30 window)\n" +
     "   Say: \"We have openings this week — would 8 in the morning, 10:40, or 1:20 in the afternoon work for you?\"\n" +
     "   → Day confirmed → \"And the time — 8am, 10:40, or 1:20pm?\"\n" +
-    "   → Time confirmed → \"Perfect " + callName + ", I have you locked in for [day] at [time]. You will get a confirmation text shortly.\"\n" +
+    "   → Time confirmed → \"Perfect " + callName + ", I have you locked in for [day] at [time]. I am sending a confirmation email to you right now!\"\n" +
     "   NEVER ask IF they want to book — always assume yes and ask WHEN.\n\n" +
 
     "SCHEDULING RULES — READ BEFORE OFFERING ANY SLOT:\n" +
@@ -173,7 +173,7 @@ function buildSystemPrompt(tenant, lead) {
 
     "BOOKING CONFIRMED:\n" +
     "Before saying BOOKING_CONFIRMED, do a quick verbal recap:\n" +
-    "\"Perfect! So just to confirm — I have you down for [service] at [address] on [day] at [time]. You will get a text confirmation in a few minutes. We are excited to take care of your home!\"\n" +
+    "\"Perfect! So just to confirm — I have you down for [service] at [address] on [day] at [time]. I am sending a confirmation email to you right now, so watch your inbox! We are excited to take care of your home!\"\n" +
     "Then say exactly: BOOKING_CONFIRMED: [service], [day], [time], [address if known], [city]\n" +
     "Example: BOOKING_CONFIRMED: Regular Cleaning, Tuesday, 10:40am, 123 Oak St, Palm Bay\n" +
     "Example: BOOKING_CONFIRMED: Deep Cleaning, Wednesday, 8:00am, 45 Pine Ave, Melbourne\n" +
@@ -289,7 +289,7 @@ STEP 4 — CLOSE (assume the sale, create real urgency):
   Time slots: 8:00 AM · 10:40 AM · 1:20 PM (Deep Clean: 8:00 AM only — needs 4h30 window)
   Say: "We have openings this week — would 8 in the morning, 10:40, or 1:20 in the afternoon work for you?"
   → Day confirmed → "And the time — 8am, 10:40, or 1:20pm?"
-  → Time confirmed → "Perfect! I have you locked in for [day] at [time]. You will get a confirmation text shortly."
+  → Time confirmed → "Perfect! I have you locked in for [day] at [time]. I am sending a confirmation email to you right now!"
   NEVER ask IF they want to book — always assume yes and ask WHEN.
 
 STEP 5 — OBJECTIONS:
@@ -305,7 +305,7 @@ STEP 5 — OBJECTIONS:
   After 3 objections with no movement: "No worries at all! I'll send our info over. If you ever want to chat again, just call us at (321) 392-7880. Have a great day!" [end call]
 
 STEP 6 — BOOKING CONFIRMED:
-  Do a verbal recap first: "So just to confirm — I have you down for [service] on [day] at [time]. You'll get a text confirmation in a few minutes. We're excited to take care of your home!"
+  Do a verbal recap first: "So just to confirm — I have you down for [service] on [day] at [time]. I'm sending a confirmation email to you right now, so watch your inbox! We're excited to take care of your home!"
   Then say exactly: BOOKING_CONFIRMED: [service], [day], [time], [address if known], [city]
   Example: BOOKING_CONFIRMED: Regular Cleaning, Tuesday, 10:40am, 123 Oak St, Palm Bay
   ALWAYS include the city — dispatch uses it to assign the correct car.
