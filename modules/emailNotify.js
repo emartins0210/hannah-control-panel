@@ -182,7 +182,88 @@ async function sendBookingEmails(lead, bookingDetails, tenant) {
 }
 
 module.exports = {
+  sendEmail,
   sendBookingEmails,
   sendBookingConfirmation,
   sendBookingNotificationToOwner,
+  sendFailedCallFollowUp,
 };
+
+// ── 3. Failed-call follow-up email (English) ─────────────
+async function sendFailedCallFollowUp(lead, tenant) {
+  if (!lead || !lead.email) {
+    log.warn(`⚠️  No email for lead ${lead?.name || "unknown"} — skipping follow-up email`);
+    return null;
+  }
+
+  const firstName = (lead.name || "there").split(" ")[0];
+  const company   = (tenant && tenant.companyName)  || "Lopes Cleaning Services";
+  const phone     = (tenant && tenant.companyPhone) || "(321) 384-9782";
+  const website   = "https://lopesservices.top";
+
+  const html = `<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  body{margin:0;padding:0;background:#f4f7f6;font-family:Arial,sans-serif;color:#333}
+  .wrap{max-width:580px;margin:30px auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 3px 12px rgba(0,0,0,.1)}
+  .header{background:linear-gradient(135deg,#7c5cfc,#4f8ef7);padding:35px 30px;text-align:center;color:#fff}
+  .header h1{margin:0;font-size:26px;letter-spacing:-.5px}
+  .header p{margin:8px 0 0;font-size:15px;opacity:.95}
+  .body{padding:30px}
+  .greeting{font-size:18px;font-weight:bold;color:#7c5cfc;margin-bottom:10px}
+  .p{font-size:15px;color:#555;line-height:1.65;margin:0 0 16px}
+  .cta-box{background:#f3f0ff;border:1px solid #d8d0f7;border-radius:8px;padding:22px;margin:22px 0;text-align:center}
+  .cta-btn{display:inline-block;background:#7c5cfc;color:#fff !important;text-decoration:none;padding:14px 28px;border-radius:6px;font-weight:bold;font-size:15px;margin-top:8px}
+  .cta-text{font-size:14px;color:#555;margin-bottom:8px}
+  .phone-block{background:#fafafa;border-radius:8px;padding:18px;text-align:center;margin-top:20px}
+  .phone-block .lbl{font-size:13px;color:#888;margin-bottom:4px}
+  .phone-block a{color:#7c5cfc;font-size:20px;font-weight:bold;text-decoration:none}
+  .sig{margin-top:24px;font-size:14px;color:#666;line-height:1.6}
+  .sig strong{color:#333}
+  .footer{background:#f4f4f4;padding:18px;text-align:center;font-size:12px;color:#999}
+</style></head>
+<body>
+<div class="wrap">
+  <div class="header">
+    <h1>We Tried to Reach You</h1>
+    <p>Let's get your cleaning scheduled</p>
+  </div>
+  <div class="body">
+    <div class="greeting">Hi ${firstName},</div>
+    <p class="p">
+      We tried calling you recently about your free cleaning quote request, but couldn't get through.
+      No worries — we'd still love to help you get your home sparkling clean!
+    </p>
+    <p class="p">
+      At <strong>${company}</strong>, we provide reliable, professional cleaning services across Central Florida.
+      Whether it's a standard clean, deep clean, or move-out service, our team is here to make your life easier.
+    </p>
+    <div class="cta-box">
+      <div class="cta-text">Reply to this email with a good time to call you back,<br>or book your cleaning directly:</div>
+      <a href="${website}" class="cta-btn">Get Your Free Quote</a>
+    </div>
+    <div class="phone-block">
+      <div class="lbl">Prefer to call us?</div>
+      <a href="tel:${phone.replace(/[^0-9]/g, "")}">${phone}</a>
+    </div>
+    <div class="sig">
+      Looking forward to hearing from you,<br>
+      <strong>The ${company} Team</strong>
+    </div>
+  </div>
+  <div class="footer">
+    ${company} — Professional Cleaning Services in Florida<br>
+    You're receiving this because you requested a quote through our website or social media.
+  </div>
+</div>
+</body></html>`;
+
+  const text = `Hi ${firstName},\n\nWe tried calling you recently about your free cleaning quote request, but couldn't get through.\n\nAt ${company}, we'd still love to help you get your home sparkling clean.\n\nReply to this email with a good time to call you back, or visit ${website} to book directly.\nPrefer to call? ${phone}\n\nLooking forward to hearing from you,\nThe ${company} Team`;
+
+  return sendEmail({
+    to: lead.email,
+    subject: `We tried to reach you, ${firstName} — ${company}`,
+    html,
+    text,
+  });
+}

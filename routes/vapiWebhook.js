@@ -13,7 +13,7 @@ const router   = express.Router();
 const tenantDb = require("../modules/tenantDb");
 const leadDb   = require("../modules/leadDb");
 const { notify, buildWhatsAppMessage } = require("../modules/twilioNotify");
-const { sendBookingEmails }            = require("../modules/emailNotify");
+const { sendBookingEmails, sendFailedCallFollowUp } = require("../modules/emailNotify");
 const { log }  = require("../modules/guard");
 
 router.post("/:tenantId", (req, res) => {
@@ -222,6 +222,22 @@ function handleCallEnded(tenant, callId, event) {
   });
 
   log.info(`📊 ${lead.name} → ${outcome}`);
+
+    // ── AUTO EMAIL FOLLOW-UP for failed/unanswered calls ──
+    if (outcome !== "booked" && lead.email && !lead.followupEmailSent) {
+      sendFailedCallFollowUp(lead, tenant)
+        .then(result => {
+          if (result && result.id) {
+            leadDb.update(lead.id, {
+              followupEmailSent: true,
+              followupEmailSentAt: new Date().toISOString(),
+              followupEmailId: result.id,
+            });
+            log.info(`📧 Follow-up email sent → ${lead.name} (${lead.email})`);
+          }
+        })
+        .catch(err => log.warn(`📧 Follow-up email failed → ${lead.name}: ${err.message}`));
+    }
 }
 
 // ── Helpers ───────────────────────────────────────────────
